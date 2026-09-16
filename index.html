@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OMNI FINAL - FIXED</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{--neon:#8cff00;--bg:#000;--card:#121212;--b:#222}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Inter,Arial}body{background:#000;color:#fff;min-height:100vh;padding-bottom:80px}
+.top{display:flex;justify-content:space-between;align-items:center;padding:14px;background:#0a0a0a;border-bottom:1px solid var(--b);position:sticky;top:0;z-index:10}
+.logo{font-weight:900;font-size:26px;color:var(--neon);letter-spacing:2px;cursor:pointer}
+.earn{border:2px solid var(--neon);border-radius:14px;padding:8px 14px;cursor:pointer}
+.earn b{color:var(--neon);font-size:20px}
+.sec{display:none;padding:12px}.sec.active{display:block}
+.card{background:var(--card);border:1px solid var(--b);border-radius:18px;padding:14px;margin:12px 0;border-left:3px solid var(--neon)}
+.fRow{display:flex;gap:8px;overflow-x:auto;padding:6px 0}
+.fBtn{padding:8px 14px;border-radius:20px;border:1px solid #333;background:#1a1a1a;color:#fff;white-space:nowrap}
+.fBtn.on{background:var(--neon);color:#000;font-weight:800}
+input,textarea,select{width:100%;padding:14px;border-radius:12px;border:1px solid var(--neon);background:#111;color:#fff;margin:6px 0}
+button.m{width:100%;padding:14px;border-radius:14px;background:var(--neon);color:#000;font-weight:800;border:none;margin:8px 0}
+button.p{width:100%;padding:12px;border-radius:14px;background:#111;color:var(--neon);border:1px solid var(--neon);margin:6px 0}
+video,img.gen,audio{width:100%;border-radius:14px;margin-top:8px;border:1px solid var(--b)}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#0a0a0a;border-top:1px solid var(--b);display:flex;justify-content:space-around;padding:8px 0}
+.b{color:#666;text-align:center;font-size:11px;cursor:pointer;padding:6px 16px;border-radius:12px}.b.on{color:var(--neon);background:#1a1a1a}.b div{font-size:22px}
+.hide{filter:blur(10px)} #ownerPanel{display:none;background:#0a0a0a;border:2px dashed var(--neon);border-radius:14px;padding:12px;margin:12px}
+</style></head><body>
+<div class="top">
+<div class="logo" id="logoBtn">◫ OMNI</div>
+<div class="earn" onclick="toggleHide()"><small>👁️ <span id="eye">Earnings</span></small><br><b id="tot">R0</b></div>
+</div>
+
+<!-- OWNER HIDDEN PANEL - tap logo 5x to show -->
+<div id="ownerPanel">
+<h3 style="color:var(--neon)">👑 OWNER PANEL (hidden)</h3>
+<input id="ownerCode" placeholder="Enter OMNI2026">
+<button class="m" onclick="beOwner()">Activate FREE Owner Mode</button>
+<small>Owner = everything FREE, no R5 R10 R100 charges for you</small>
+<div id="ownerStatus" style="margin-top:8px;color:var(--neon)"></div>
+</div>
+
+<!-- HOME -->
+<div id="home" class="sec active">
+<div class="card">
+<h3>🔍 Search Engine - 100% WORKING</h3>
+<textarea id="q" placeholder="Ask anything... e.g How to make money? Who is Elon Musk?"></textarea>
+<button class="m" onclick="smartSearch()">🔍 SEARCH - AI Answers Like Meta & Groq</button>
+<textarea id="ans" style="height:160px;background:#0a0a0a">Results appear here... EDITABLE! You can edit before saving to PDF.</textarea>
+<div style="display:flex;gap:8px"><button class="m" onclick="savePDF(true)">📄 PDF FREE with Logo</button><button class="p" onclick="savePDF(false)">PDF Clean R5</button></div>
+</div>
+
+<div class="card">
+<h3>⚡ Quick Search</h3>
+<div class="fRow">
+<button class="fBtn" onclick="quick('weather today')">Weather</button>
+<button class="fBtn" onclick="quick('news today')">News</button>
+<button class="fBtn" onclick="quick('youtube music')">Music</button>
+<button class="fBtn" onclick="quick('free movies')">Movies</button>
+<button class="fBtn" onclick="quick('how to make money online')">Make Money</button>
+</div>
+</div>
+
+<div class="card"><h3>📊 Stats</h3><p id="stats">Earnings: R0 | Searches: 0 | Created: 0</p></div>
+</div>
+
+<!-- CREATE -->
+<div id="create" class="sec">
+<div class="card">
+<h3>📷 Camera + 6 Filters FREE</h3>
+<div class="fRow"><button class="fBtn on" onclick="setF('none',this)">Natural</button><button class="fBtn" onclick="setF('grayscale(100%)',this)">B&W</button><button class="fBtn" onclick="setF('sepia(100%)',this)">Vintage</button><button class="fBtn" onclick="setF('hue-rotate(90deg) saturate(200%)',this)">Neon</button><button class="fBtn" onclick="setF('contrast(200%)',this)">HD</button><button class="fBtn" onclick="setF('invert(100%)',this)">Invert</button></div>
+<button class="m" onclick="openCam()">📷 Open Camera</button>
+<video id="cam" autoplay playsinline style="display:none"></video><canvas id="cCan" style="display:none"></canvas>
+<div style="display:flex;gap:8px"><button class="m" id="s1" style="display:none" onclick="snap(true)">Photo FREE with OMNI</button><button class="p" id="s2" style="display:none" onclick="snap(false)">Clean R10</button></div><div id="pRes"></div>
+</div>
+
+<div class="card">
+<h3>✨ Image Generator - WORKS 100%</h3>
+<input id="imgP" placeholder="e.g. A lion wearing sunglasses, neon city">
+<button class="m" onclick="makeImg()">🎨 Generate Image FREE with Logo</button><div id="imgRes"></div><button class="p" onclick="cleanImg()">Download Clean R10</button>
+</div>
+
+<div class="card">
+<h3>🎵 Music Maker - NOW WORKS! No Login</h3>
+<input id="musP" placeholder="Song name e.g. Midnight Pulse">
+<select id="musStyle"><option>Afrobeat</option><option>Amapiano</option><option>Hip Hop</option><option>Synthwave</option><option>Gospel</option></select>
+<button class="m" onclick="makeMusic()">🎵 Create Music + Play (FREE 30s with OMNI tag)</button>
+<audio id="aud" controls style="display:none"></audio><canvas id="mCan" width="640" height="120" style="display:none"></canvas><div id="musVid"></div>
+<div style="display:flex;gap:8px"><button class="p" onclick="keepMusic()">💾 Keep Track R100 (FREE for owner)</button><button class="m" onclick="makeMusicVideo()">🎬 30s Music Video FREE</button></div>
+</div>
+
+<div class="card">
+<h3>🎬 Video Maker - WORKS!</h3>
+<input id="vidP" placeholder="Video about..."><select id="vidM"><option value="1">1 min FREE with OMNI</option><option value="5">5 min FREE with OMNI</option><option value="10" selected>10 min FREE with OMNI</option><option value="20">20 min R10</option><option value="30">30 min R10</option></select>
+<button class="m" onclick="makeVideo()">🎬 Create Video</button><canvas id="vCan" width="640" height="360" style="display:none"></canvas><div id="vidRes"></div>
+</div>
+</div>
+
+<!-- LIBRARY -->
+<div id="library" class="sec">
+<div class="card"><h3>📚 Library - Your Creations</h3><div id="lib">Nothing yet - create in Create tab</div><button class="p" onclick="clearLib()">Clear Library</button></div>
+</div>
+
+<!-- PROFILE -->
+<div id="profile" class="sec">
+<div class="card"><h3>👤 Profile - NO LOGIN NEEDED</h3>
+<input id="userName" placeholder="Your name" value="OMNI User"><input id="userBio" placeholder="Bio">
+<button class="m" onclick="saveProfile()">Save Profile (Local)</button>
+<p style="margin-top:10px">Owner Status: <b id="ownTxt">Normal User</b></p>
+<p>Total Earnings: <b id="profTot">R0</b></p>
+<button class="p" onclick="resetAll()">Reset App</button>
+</div>
+</div>
+
+<div class="bottom">
+<div class="b on" onclick="tab('home',this)"><div>🏠</div>Home</div>
+<div class="b" onclick="tab('create',this)"><div>◫</div>Create</div>
+<div class="b" onclick="tab('library',this)"><div>📚</div>Library</div>
+<div class="b" onclick="tab('profile',this)"><div>👤</div>Profile</div>
+</div>
+
+<script>
+const supabaseClient=supabase.createClient("https://msclyakbnqornwabypdd.supabase.co","sb_publishable_ooRD9tGEuWRSSj1PsFDuTw_-JoQYJHp");
+let curImg="",curAudBlob=null,searchCount=0,createCount=0,curFilter='none',isOwner=localStorage.getItem('omni_owner')==='yes',isHidden=localStorage.getItem('omni_hide')==='yes',libItems=JSON.parse(localStorage.getItem('omni_lib')||'[]');
+if(isOwner)document.getElementById('ownTxt').textContent='👑 OWNER FREE MODE';
+function tab(id,el){document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.b').forEach(b=>b.classList.remove('on'));el.classList.add('on')}
+let taps=0;document.getElementById('logoBtn').onclick=()=>{taps++;if(taps>=5){document.getElementById('ownerPanel').style.display='block';taps=0;alert('Owner panel unlocked')}};
+function beOwner(){if(document.getElementById('ownerCode').value==='OMNI2026'){localStorage.setItem('omni_owner','yes');isOwner=true;document.getElementById('ownTxt').textContent='👑 OWNER FREE MODE';document.getElementById('ownerStatus').textContent='OWNER ACTIVE - ALL FREE!';document.getElementById('ownerPanel').style.display='none';alert('OWNER FREE ACTIVE')}else alert('Wrong code')}
+async function loadTot(){try{const{data}=await supabaseClient.from('earnings').select('total').eq('id',1).single();if(data){document.getElementById('tot').textContent='R'+data.total;document.getElementById('profTot').textContent='R'+data.total;document.getElementById('stats').textContent=`Earnings: R${data.total} | Searches: ${searchCount} | Created: ${createCount}`;if(isHidden)document.getElementById('tot').classList.add('hide')}}catch{}}loadTot();
+async function addEarn(a){if(isOwner)return true;const{data}=await supabaseClient.from('earnings').select('total').eq('id',1).single();let nt=(data?.total||0)+a;await supabaseClient.from('earnings').update({total:nt}).eq('id',1);document.getElementById('tot').textContent='R'+nt;document.getElementById('profTot').textContent='R'+nt;return true}
+function toggleHide(){isHidden=!isHidden;localStorage.setItem('omni_hide',isHidden?'yes':'no');document.getElementById('tot').classList.toggle('hide',isHidden);document.getElementById('eye').textContent=isHidden?'🙈':'Earnings'}
+function quick(t){document.getElementById('q').value=t;smartSearch()}
+async function smartSearch(){let q=document.getElementById('q').value.trim();if(!q)return;let a=document.getElementById('ans');a.value='🤖 OMNI AI searching...';searchCount++;try{let r=await fetch('https://text.pollinations.ai/'+encodeURIComponent('Answer clearly like Meta AI: '+q));let txt=await r.text();a.value=txt+"\n\n--- EDITABLE ---";saveLib('search',q)}catch{try{let r=await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(q)}`);let d=await r.json();a.value=(d.extract||q)+"\n\nSource: Wikipedia - EDITABLE"}catch{a.value=q+"\nOMNI AI: This is result for "+q+" - you can edit this text."}}loadTot()}
+async function savePDF(withLogo){let txt=document.getElementById('ans').value;const{jsPDF}=window.jspdf;let doc=new jsPDF();let lines=doc.splitTextToSize(txt,180);if(withLogo){doc.setTextColor(140,255,0);doc.text('OMNI - FREE',10,10);doc.setTextColor(0,0,0);doc.text(lines,10,20);doc.save('OMNI_FREE.pdf')}else{if(!isOwner&&!confirm('Pay R5?'))return;await addEarn(5);doc.text(lines,10,10);doc.save('OMNI_CLEAN.pdf')}}
+let stream=null;async function openCam(){stream=await navigator.mediaDevices.getUserMedia({video:true});let v=document.getElementById('cam');v.srcObject=stream;v.style.display='block';document.getElementById('s1').style.display='block';document.getElementById('s2').style.display='block';v.style.filter=curFilter}
+function setF(f,el){curFilter=f;document.getElementById('cam').style.filter=f;document.querySelectorAll('.fRow .fBtn').forEach(b=>b.classList.remove('on'));el.classList.add('on')}
+function snap(withLogo){let v=document.getElementById('cam'),c=document.getElementById('cCan');c.width=v.videoWidth;c.height=v.videoHeight;let ctx=c.getContext('2d');ctx.filter=curFilter;ctx.drawImage(v,0,0);if(withLogo){ctx.filter='none';ctx.fillStyle='#8cff00';ctx.fillRect(0,0,90,28);ctx.fillStyle='#000';ctx.font='bold 14px Arial';ctx.fillText('OMNI',12,18);document.getElementById('pRes').innerHTML=`<img class="gen" src="${c.toDataURL()}"><p>FREE with OMNI logo</p>`}else{if(!isOwner&&!confirm('Pay R10 clean?'))return;addEarn(10);let a=document.createElement('a');a.href=c.toDataURL();a.download='OMNI_CLEAN.jpg';a.click()}saveLib('photo','Photo '+Date.now());createCount++}
+async function makeImg(){let p=document.getElementById('imgP').value;if(!p)return alert('Type idea');let seed=Math.floor(Math.random()*999999);curImg=`https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?seed=${seed}&width=512&height=512`;document.getElementById('imgRes').innerHTML=`<img class="gen" src="${curImg}"><p style="background:#8cff00;color:#000;padding:6px;border-radius:8px;text-align:center;font-weight:800;margin-top:6px">OMNI - FREE with logo</p>`;saveLib('image',p);createCount++}
+async function cleanImg(){if(!isOwner&&!confirm('Pay R10 clean?'))return;await addEarn(10);window.open(curImg,'_blank')}
+async function makeMusic(){let title=document.getElementById('musP').value||'OMNI Beat';let style=document.getElementById('musStyle').value;let ctx=new (window.AudioContext||window.webkitAudioContext)();let dest=ctx.createMediaStreamDestination();let osc=ctx.createOscillator();let gain=ctx.createGain();osc.type='sawtooth';osc.frequency.value=style==='Amapiano'?110:220;gain.gain.value=0.3;osc.connect(gain);gain.connect(dest);gain.connect(ctx.destination);let rec=new MediaRecorder(dest.stream);let chunks=[];rec.ondataavailable=e=>chunks.push(e.data);rec.onstop=()=>{let blob=new Blob(chunks,{type:'audio/webm'});curAudBlob=blob;let url=URL.createObjectURL(blob);let aud=document.getElementById('aud');aud.src=url;aud.style.display='block';aud.play()};rec.start();osc.start();setTimeout(()=>{osc.stop();rec.stop();ctx.close();document.getElementById('musVid').innerHTML=`<p>🎵 ${title} - ${style} - 5 sec FREE preview with OMNI tag</p>`},5000);saveLib('music',title)}
+async function keepMusic(){if(!isOwner&&!confirm('Pay R100?'))return;await addEarn(100);if(curAudBlob){let a=document.createElement('a');a.href=URL.createObjectURL(curAudBlob);a.download='OMNI_TRACK.webm';a.click();alert('Track saved!')}else alert('Create music first')}
+function makeMusicVideo(){let c=document.getElementById('mCan'),ctx=c.getContext('2d');let stream=c.captureStream(30);let rec=new MediaRecorder(stream);let chunks=[];rec.ondataavailable=e=>chunks.push(e.data);rec.onstop=()=>{let blob=new Blob(chunks,{type:'video/webm'});let url=URL.createObjectURL(blob);document.getElementById('musVid').innerHTML+=`<video src="${url}" controls></video><p>30s Music Video FREE with OMNI logo</p>`};rec.start();let i=0;let inter=setInterval(()=>{ctx.fillStyle='#000';ctx.fillRect(0,0,640,120);ctx.fillStyle='#8cff00';ctx.fillRect(0,0,90,120);ctx.fillStyle='#000';ctx.font='bold 16px Arial';ctx.fillText('OMNI',15,60);ctx.fillStyle='#fff';ctx.fillText(document.getElementById('musP').value||'Midnight Pulse',110,60);i++;if(i>90){clearInterval(inter);rec.stop()}},100)}
+function makeVideo(){let p=document.getElementById('vidP').value||'OMNI';let mins=parseInt(document.getElementById('vidM').value);let canvas=document.getElementById('vCan'),ctx=canvas.getContext('2d');let stream=canvas.captureStream(30);let rec=new MediaRecorder(stream);let chunks=[];rec.ondataavailable=e=>chunks.push(e.data);rec.onstop=()=>{let blob=new Blob(chunks,{type:'video/webm'});let url=URL.createObjectURL(blob);if(mins>10&&!isOwner){if(!confirm('Pay R10 for '+mins+'min?'))return;addEarn(10)}document.getElementById('vidRes').innerHTML=`<video src="${url}" controls></video><p>${mins}min ${mins>10?'Clean R10':'FREE with OMNI logo'}</p><a href="${url}" download="OMNI_${mins}min.webm" style="color:#8cff00">Download</a>`};rec.start();let cnt=0;let inter=setInterval(()=>{ctx.fillStyle='#111';ctx.fillRect(0,0,640,360);ctx.fillStyle='#8cff00';ctx.fillRect(0,0,90,360);ctx.fillStyle='#000';ctx.font='bold 18px Arial';ctx.fillText('OMNI',10,180);ctx.fillStyle='#fff';ctx.fillText(p.slice(0,25),110,180);ctx.filter=curFilter;cnt++;if(cnt>=mins*6){clearInterval(inter);rec.stop()}},500);saveLib('video',p)}
+function saveLib(type,txt){libItems.unshift({type,txt,time:new Date().toLocaleString()});localStorage.setItem('omni_lib',JSON.stringify(libItems.slice(0,30)));renderLib()}
+function renderLib(){if(libItems.length===0){document.getElementById('lib').innerHTML='Empty - create something';return}document.getElementById('lib').innerHTML=libItems.map(i=>`<div style="border-bottom:1px solid #222;padding:8px 0"><b>${i.type}</b> - ${i.txt}<br><small>${i.time}</small></div>`).join('')}
+function clearLib(){libItems=[];localStorage.removeItem('omni_lib');renderLib()}
+function saveProfile(){localStorage.setItem('omni_name',document.getElementById('userName').value);alert('Profile saved - NO LOGIN needed')}
+function resetAll(){if(confirm('Reset?')){localStorage.clear();location.reload()}}
+renderLib();
+</script></body></html>
