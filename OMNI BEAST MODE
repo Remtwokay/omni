@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Omni Beast – Final</title>
+<meta name="theme-color" content="#0b0e13">
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<style>
+:root {
+  --bg: #0b0e13;
+  --panel: #141a22;
+  --panel2: #1c2430;
+  --line: #2a3444;
+  --text: #e8eaed;
+  --dim: #8b95a5;
+  --amber: #f0b429;
+  --teal: #4ecdc4;
+  --radius: 14px;
+}
+[data-theme="light"] {
+  --bg: #f0f2f5;
+  --panel: #ffffff;
+  --panel2: #e8ecf1;
+  --line: #d0d7e2;
+  --text: #1a1f2a;
+  --dim: #5a6a7e;
+  --amber: #d4920a;
+  --teal: #0f766e;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  transition: background .25s, color .25s;
+}
+.wrap { max-width: 820px; margin: 0 auto; padding: 20px 14px 80px; }
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.logo {
+  font-size: 1.7rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #fff 10%, var(--amber));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+[data-theme="light"] .logo {
+  background: linear-gradient(135deg, #111, var(--amber));
+  -webkit-background-clip: text;
+}
+.header-right { display: flex; gap: 8px; }
+
+.btn-small {
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  background: var(--panel2);
+  border-radius: 9px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  color: var(--text);
+}
+.btn-small.active { background: var(--amber); color: #111; border-color: var(--amber); }
+
+.search-shell { position: relative; margin-bottom: 12px; }
+#q {
+  width: 100%;
+  padding: 15px 150px 15px 16px;
+  font-size: 1.02rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--text);
+  outline: none;
+}
+#q:focus { border-color: var(--amber); }
+.actions {
+  position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
+  display: flex; gap: 5px;
+}
+.btn {
+  width: 36px; height: 36px;
+  border: none; border-radius: 9px;
+  background: var(--panel2);
+  color: var(--text);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.go { background: var(--amber); color: #111; font-weight: 700; }
+.listening { background: #e74c3c !important; color: #fff; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 7px; margin: 12px 0; }
+.chip {
+  font-size: 0.75rem;
+  padding: 5px 11px;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--dim);
+}
+
+#out { margin-top: 16px; min-height: 60px; }
+.card {
+  display: flex; gap: 12px;
+  padding: 14px;
+  margin-bottom: 11px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.card.top { border-color: rgba(240,180,41,.45); }
+.icon { font-size: 1.3rem; }
+.title { color: var(--amber); font-weight: 650; margin-bottom: 5px; }
+.desc { font-size: 0.93rem; line-height: 1.55; white-space: pre-wrap; }
+.link { color: var(--teal); font-size: 0.85rem; }
+
+.ai-box {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+.ai-box .label { font-size: 0.75rem; color: var(--amber); font-weight: 600; display: block; margin-bottom: 6px; }
+
+.img-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+.img-grid .img-item {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  aspect-ratio: 1;
+}
+.img-grid img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.download-btn {
+  position: absolute;
+  bottom: 4px; right: 4px;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 3px 7px;
+  font-size: 0.7rem;
+  cursor: pointer;
+}
+
+.loading { display: flex; align-items: center; gap: 10px; color: var(--dim); }
+.spinner {
+  width: 17px; height: 17px;
+  border: 2.5px solid var(--line);
+  border-top-color: var(--amber);
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Camera Modal */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 1000;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.modal.open { display: flex; }
+#cameraVideo {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 12px;
+  background: #000;
+}
+.cam-controls {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.cam-btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 10px;
+  background: var(--amber);
+  color: #111;
+  font-weight: 600;
+  cursor: pointer;
+}
+.cam-btn.secondary { background: var(--panel2); color: var(--text); border: 1px solid var(--line); }
+#cameraCanvas { display: none; }
+
+.footer {
+  text-align: center;
+  color: var(--dim);
+  font-size: 0.74rem;
+  margin-top: 40px;
+  line-height: 1.5;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="logo">Omni Beast</div>
+    <div class="header-right">
+      <button class="btn-small" id="modeBtn" onclick="toggleMode()">AI: OFF</button>
+      <button class="btn-small" onclick="openCamera()">Camera</button>
+      <button class="btn-small" onclick="toggleTheme()">◐</button>
+    </div>
+  </div>
+
+  <div class="search-shell">
+    <input id="q" type="text" placeholder="Search or ask anything…" autocomplete="off">
+    <div class="actions">
+      <button class="btn" id="voiceBtn" onclick="toggleVoice()">🎤</button>
+      <button class="btn go" onclick="go()">→</button>
+    </div>
+  </div>
+
+  <div class="chips">
+    <span class="chip" onclick="setQ('Bitcoin price')">Bitcoin</span>
+    <span class="chip" onclick="setQ('weather Nairobi')">Weather</span>
+    <span class="chip" onclick="setQ('100 usd to kes')">USD → KES</span>
+    <span class="chip" onclick="openCamera()">Scan Document</span>
+  </div>
+
+  <div id="out"></div>
+
+  <div class="footer">
+    Omni Beast Final<br>
+    Camera + OCR + Download + AI Mode (requires Worker)
+  </div>
+</div>
+
+<!-- Camera Modal -->
+<div class="modal" id="cameraModal">
+  <video id="cameraVideo" autoplay playsinline></video>
+  <canvas id="cameraCanvas"></canvas>
+  <div class="cam-controls">
+    <button class="cam-btn secondary" onclick="switchCamera()">Switch Camera</button>
+    <button class="cam-btn" onclick="capturePhoto()">Capture</button>
+    <button class="cam-btn secondary" onclick="closeCamera()">Close</button>
+  </div>
+  <p style="color:#aaa;font-size:0.8rem;margin-top:12px;text-align:center;">Point at text / document then press Capture</p>
+</div>
+
+<script>
+// ======================================================
+// PASTE YOUR CLOUDFLARE WORKER URL HERE
+const WORKER_URL = "YOUR_WORKER_URL";
+// ======================================================
+
+const qInput = document.getElementById('q');
+const out = document.getElementById('out');
+const modeBtn = document.getElementById('modeBtn');
+const video = document.getElementById('cameraVideo');
+const canvas = document.getElementById('cameraCanvas');
+
+let aiMode = false;
+let history = [];
+let currentStream = null;
+let usingFront = false;
+
+// Theme
+function toggleTheme() {
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  document.documentElement.setAttribute('data-theme', isLight ? '' : 'light');
+  localStorage.setItem('omni-theme', isLight ? 'dark' : 'light');
+}
+if (localStorage.getItem('omni-theme') === 'light') {
+  document.documentElement.setAttribute('data-theme', 'light');
+}
+
+// AI Mode
+function toggleMode() {
+  aiMode = !aiMode;
+  modeBtn.textContent = aiMode ? 'AI: ON' : 'AI: OFF';
+  modeBtn.classList.toggle('active', aiMode);
+  if (aiMode && WORKER_URL === "YOUR_WORKER_URL") {
+    alert("Set your Cloudflare Worker URL first to use real AI.");
+    aiMode = false;
+    modeBtn.textContent = 'AI: OFF';
+    modeBtn.classList.remove('active');
+  }
+}
+
+// Voice
+let recog = null;
+function toggleVoice() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return alert("Voice not supported");
+  if (!recog) {
+    recog = new SR();
+    recog.lang = 'en-US';
+    recog.onresult = e => {
+      qInput.value = e.results[0][0].transcript;
+      document.getElementById('voiceBtn').classList.remove('listening');
+      go();
+    };
+    recog.onend = () => document.getElementById('voiceBtn').classList.remove('listening');
+  }
+  const btn = document.getElementById('voiceBtn');
+  if (btn.classList.contains('listening')) {
+    recog.stop();
+    btn.classList.remove('listening');
+  } else {
+    btn.classList.add('listening');
+    recog.start();
+  }
+}
+
+qInput.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+function setQ(t) { qInput.value = t; go(); }
+
+// ========== MAIN ==========
+async function go() {
+  const query = qInput.value.trim();
+  if (!query) return;
+  out.innerHTML = '';
+
+  if (aiMode) return runAI(query);
+  runLocal(query);
+}
+
+// AI Mode
+async function runAI(query) {
+  out.innerHTML = `<div class="loading"><div class="spinner"></div> Omni is thinking…</div>`;
+  try {
+    const res = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: query, history })
+    });
+    if (!res.ok) throw new Error("AI request failed");
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let full = '';
+
+    out.innerHTML = `<div class="ai-box"><span class="label">OMNI BEAST AI</span><div id="aiText"></div></div>`;
+    const aiText = document.getElementById('aiText');
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      full += decoder.decode(value, { stream: true });
+      aiText.textContent = full;
+    }
+
+    history.push({ role: 'user', content: query });
+    history.push({ role: 'assistant', content: full });
+    if (history.length > 10) history = history.slice(-10);
+  } catch (err) {
+    out.innerHTML = `<div class="card"><div class="desc">AI Error: ${err.message}<br>Check your Worker URL and Groq key.</div></div>`;
+  }
+}
+
+// Local mode (simplified for length)
+function runLocal(query) {
+  const lower = query.toLowerCase();
+  if (/bitcoin|btc|ethereum|eth/i.test(lower)) return doCrypto(lower);
+  if (/weather|temperature/i.test(lower)) return doWeather(query);
+  doSearch(query);
+}
+
+async function doCrypto(lower) {
+  out.innerHTML = `<div class="loading"><div class="spinner"></div> Price…</div>`;
+  const id = lower.includes('eth') ? 'ethereum' : 'bitcoin';
+  try {
+    const d = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd&include_24hr_change=true`).then(r => r.json());
+    out.innerHTML = `<div class="card top"><div class="icon">🪙</div><div><div class="title">${id}</div><div class="desc" style="font-size:1.4rem">$${d[id].usd}</div></div></div>`;
+  } catch {
+    out.innerHTML = `<div class="card"><div class="desc">Price unavailable</div></div>`;
+  }
+}
+
+async function doWeather(q) {
+  out.innerHTML = `<div class="loading"><div class="spinner"></div> Weather…</div>`;
+  const city = q.replace(/weather|temperature|in|for/gi, '').trim() || 'Nairobi';
+  try {
+    const geo = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(city)}&format=json&limit=1`).then(r => r.json());
+    const { lat, lon, display_name } = geo[0];
+    const w = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code`).then(r => r.json());
+    out.innerHTML = `<div class="card top"><div class="icon">🌤️</div><div><div class="title">${display_name.split(',')[0]}</div><div class="desc" style="font-size:1.3rem">${w.current.temperature_2m}°C</div></div></div>`;
+  } catch {
+    out.innerHTML = `<div class="card"><div class="desc">Weather not found</div></div>`;
+  }
+}
+
+async function doSearch(query) {
+  out.innerHTML = `<div class="loading"><div class="spinner"></div> Searching…</div>`;
+  const enc = encodeURIComponent(query);
+  try {
+    const [wiki, ddg] = await Promise.all([
+      fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${enc}`).then(r => r.ok ? r.json() : null).catch(()=>null),
+      fetch(`https://api.duckduckgo.com/?q=${enc}&format=json&no_html=1&origin=*`).then(r => r.json()).catch(()=>null)
+    ]);
+    let html = '';
+    if (wiki?.extract) {
+      html += `<div class="card top"><div class="icon">📖</div><div><div class="title">${esc(wiki.title)}</div><div class="desc">${esc(wiki.extract)}</div></div></div>`;
+    }
+    if (ddg?.AbstractText) {
+      html += `<div class="card"><div class="icon">🦆</div><div><div class="title">${esc(ddg.Heading||'Answer')}</div><div class="desc">${esc(ddg.AbstractText)}</div></div></div>`;
+    }
+    // Images example with download
+    html += `
+      <div class="card">
+        <div class="icon">🖼️</div>
+        <div>
+          <div class="title">Images</div>
+          <div class="img-grid" id="imgGrid">Loading images…</div>
+        </div>
+      </div>`;
+    out.innerHTML = html || `<div class="card"><div class="desc">No results</div></div>`;
+
+    // Load some images
+    loadImages(query);
+  } catch {
+    out.innerHTML = `<div class="card"><div class="desc">Search failed</div></div>`;
+  }
+}
+
+async function loadImages(query) {
+  try {
+    const res = await fetch(`https://api.openverse.org/v1/images/?q=${encodeURIComponent(query)}&page_size=6`);
+    const data = await res.json();
+    const grid = document.getElementById('imgGrid');
+    if (!grid || !data.results?.length) return;
+    grid.innerHTML = data.results.map(img => `
+      <div class="img-item">
+        <img src="${img.thumbnail || img.url}" alt="">
+        <button class="download-btn" onclick="downloadImage('${img.url}', '${(img.title||'image').replace(/'/g,'')}')">↓</button>
+      </div>
+    `).join('');
+  } catch {}
+}
+
+// Download image
+async function downloadImage(url, name) {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = (name || 'omni-image').replace(/[^\w.-]/g, '_') + '.jpg';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  } catch {
+    // fallback: open in new tab
+    window.open(url, '_blank');
+  }
+}
+
+// ========== CAMERA + OCR ==========
+async function openCamera() {
+  document.getElementById('cameraModal').classList.add('open');
+  await startCamera(false);
+}
+
+function closeCamera() {
+  document.getElementById('cameraModal').classList.remove('open');
+  if (currentStream) {
+    currentStream.getTracks().forEach(t => t.stop());
+    currentStream = null;
+  }
+}
+
+async function startCamera(front = false) {
+  if (currentStream) currentStream.getTracks().forEach(t => t.stop());
+  usingFront = front;
+  try {
+    currentStream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: front ? 'user' : 'environment',
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      },
+      audio: false
+    });
+    video.srcObject = currentStream;
+  } catch (err) {
+    alert('Camera permission denied or not available');
+    closeCamera();
+  }
+}
+
+function switchCamera() {
+  startCamera(!usingFront);
+}
+
+async function capturePhoto() {
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext('2d').drawImage(video, 0, 0);
+  closeCamera();
+
+  out.innerHTML = `<div class="loading"><div class="spinner"></div> Reading text from image (OCR)…</div>`;
+
+  try {
+    const { data: { text } } = await Tesseract.recognize(canvas, 'eng', {
+      logger: m => console.log(m)
+    });
+
+    const cleanText = text.replace(/\s+/g, ' ').trim();
+
+    if (!cleanText || cleanText.length < 3) {
+      out.innerHTML = `<div class="card"><div class="desc">No readable text found in the image.</div></div>`;
+      return;
+    }
+
+    out.innerHTML = `
+      <div class="card top">
+        <div class="icon">📄</div>
+        <div>
+          <div class="title">Text extracted from camera</div>
+          <div class="desc">${esc(cleanText)}</div>
+          <br>
+          <button class="btn-small active" onclick="processOCRText(\`${cleanText.replace(/`/g,'')}\`)">Search / Ask about this text</button>
+        </div>
+      </div>`;
+  } catch (err) {
+    out.innerHTML = `<div class="card"><div class="desc">OCR failed: ${err.message}</div></div>`;
+  }
+}
+
+function processOCRText(text) {
+  qInput.value = text.slice(0, 200);
+  go();
+}
+
+function esc(s) {
+  if (!s) return '';
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+</script>
+</body>
+</html>
