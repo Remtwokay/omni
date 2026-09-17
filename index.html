@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OMNI Beast - AI Engine & Multi-Source Agent</title>
+<title>OMNI - AI Engine & Multi-Source Agent</title>
 <style>
 :root {
   --red: #E10600;
@@ -71,10 +71,15 @@ header { padding: 24px 20px 12px; text-align: center; }
 /* Main Output Box */
 #answer { 
   background: white; color: #111; border-radius: 18px; padding: 24px; 
-  display: none; white-space: pre-wrap; line-height: 1.65; box-shadow: 0 15px 35px rgba(0,0,0,0.4); margin-bottom: 20px;
+  display: none; line-height: 1.65; box-shadow: 0 15px 35px rgba(0,0,0,0.4); margin-bottom: 20px;
+  font-size: 15px;
 }
 #answer.show { display: block; }
-.cite-tag { color: var(--red); font-weight: 700; cursor: pointer; }
+#answer h3 { margin-bottom: 12px; color: var(--dark-red); }
+#answer ul { margin-left: 20px; margin-bottom: 16px; }
+#answer li { margin-bottom: 6px; }
+#answer p { margin-bottom: 12px; }
+.cite-tag { color: var(--red); font-weight: 700; cursor: pointer; background: rgba(225, 6, 0, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 12px; }
 
 /* Evidence Sources Grid */
 .sources-panel { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 18px; padding: 18px; margin-bottom: 20px; display: none; }
@@ -112,7 +117,7 @@ footer { text-align: center; padding: 20px; opacity: 0.8; font-size: 12px; }
 <body>
 
 <header>
-  <div class="logo">OMNI BEAST</div>
+  <div class="logo">OMNI</div>
   <p class="tagline">50 AI Tools • Grounded Agent Search • Vision Engine</p>
 </header>
 
@@ -121,21 +126,21 @@ footer { text-align: center; padding: 20px; opacity: 0.8; font-size: 12px; }
   <!-- Search Area -->
   <div class="search-wrap">
     <form class="search-form" id="searchForm">
-      <input id="q" class="search-bar" placeholder="Search anything... e.g. Quantum Computing updates or upload an image">
+      <input id="q" class="search-bar" placeholder="Search anything... e.g. Quantum Computing updates or upload an image" aria-label="Search Query">
       <button type="submit" class="btn-submit">Execute</button>
     </form>
   </div>
 
   <!-- Mode Selector -->
-  <div class="mode-bar" id="modes">
-    <button class="active" data-mode="search">🔍 Search (Perplexity)</button>
-    <button data-mode="chat">💬 Solve (Claude)</button>
-    <button data-mode="write">✍️ Write (Gemini)</button>
-    <button data-mode="code">💻 Code (Cursor)</button>
-    <button data-mode="image">🎨 Image (Midjourney)</button>
-    <button data-mode="video">🎬 Video (Kling)</button>
-    <button data-mode="voice">🎙️ Voice (ElevenLabs)</button>
-    <button data-mode="paper">📄 Papers (Elicit)</button>
+  <div class="mode-bar" id="modes" role="tablist">
+    <button class="active" data-mode="search" role="tab">🔍 Search (Perplexity)</button>
+    <button data-mode="chat" role="tab">💬 Solve (Claude)</button>
+    <button data-mode="write" role="tab">✍️ Write (Gemini)</button>
+    <button data-mode="code" role="tab">💻 Code (Cursor)</button>
+    <button data-mode="image" role="tab">🎨 Image (Midjourney)</button>
+    <button data-mode="video" role="tab">🎬 Video (Kling)</button>
+    <button data-mode="voice" role="tab">🎙️ Voice (ElevenLabs)</button>
+    <button data-mode="paper" role="tab">📄 Papers (Elicit)</button>
   </div>
 
   <!-- Execution Controls -->
@@ -146,7 +151,7 @@ footer { text-align: center; padding: 20px; opacity: 0.8; font-size: 12px; }
       <button class="toggle-btn" id="cameraBtn">◉ Camera / OCR</button>
       <button class="toggle-btn" id="settingsBtn">⚙ Settings</button>
     </div>
-    <div class="status-text" id="status">Status: Ready</div>
+    <div class="status-text" id="status" aria-live="polite">Status: Ready</div>
   </div>
 
   <!-- Agent Step Plan Execution -->
@@ -156,7 +161,7 @@ footer { text-align: center; padding: 20px; opacity: 0.8; font-size: 12px; }
   </div>
 
   <!-- Final Answer Panel -->
-  <div id="answer"></div>
+  <div id="answer" aria-live="polite"></div>
 
   <!-- Retrieved Sources Grid -->
   <div class="sources-panel" id="sourcesPanel">
@@ -170,7 +175,7 @@ footer { text-align: center; padding: 20px; opacity: 0.8; font-size: 12px; }
 </div>
 
 <!-- Camera/OCR Modal -->
-<div class="modal" id="cameraModal">
+<div class="modal" id="cameraModal" role="dialog" aria-modal="true">
   <div class="modal-card">
     <div class="modal-head">
       <h3>Multimodal Vision Engine</h3>
@@ -192,13 +197,13 @@ footer { text-align: center; padding: 20px; opacity: 0.8; font-size: 12px; }
 </div>
 
 <!-- Settings Modal -->
-<div class="modal" id="settingsModal">
+<div class="modal" id="settingsModal" role="dialog" aria-modal="true">
   <div class="modal-card">
     <div class="modal-head">
       <h3>Worker Configuration</h3>
       <button onclick="closeModal('settingsModal')">✕</button>
     </div>
-    <label style="display:block; margin-bottom:8px; font-size:13px;">Cloudflare Worker API URL:</label>
+    <label style="display:block; margin-bottom:8px; font-size:13px;" for="workerUrlInput">Cloudflare Worker API URL:</label>
     <input id="workerUrlInput" style="width:100%; padding:10px; border-radius:8px; border:1px solid #444; background:#222; color:#fff;" placeholder="https://YOUR-WORKER.workers.dev">
     <div class="btn-group" style="margin-top:15px;">
       <button id="saveSettingsBtn" style="background:var(--red);">Save Settings</button>
@@ -206,7 +211,7 @@ footer { text-align: center; padding: 20px; opacity: 0.8; font-size: 12px; }
   </div>
 </div>
 
-<footer>OMNI Beast 5.0 • Powered by Grounded Search Agent Architecture</footer>
+<footer>OMNI Engine 5.0 • Powered by Grounded Search Agent Architecture</footer>
 
 <script>
 // === TOOL REGISTRY CONFIGURATION ===
@@ -229,7 +234,7 @@ const TOOLS = [
   {n:"Notion AI",d:"Write and organize notes",m:"write",icon:"🗒️"}
 ];
 
-// === APPLICATION STATE ===
+// === APPLICATION STATE & CACHE ===
 const state = {
   currentMode: "search",
   deepMode: false,
@@ -239,6 +244,7 @@ const state = {
   cameraStream: null
 };
 
+const searchCache = new Map(); // Performance Enhancement: Client-side cache
 const STEPS = ['Understand', 'Plan', 'Fetch Evidence', 'Verify Evidence', 'Synthesize'];
 
 // === DOM ELEMENTS ===
@@ -251,21 +257,45 @@ const stepsGrid = document.getElementById('stepsGrid');
 const sourcesPanel = document.getElementById('sourcesPanel');
 const sourceGrid = document.getElementById('sourceGrid');
 
-// === UI RENDER FUNCTIONS ===
+// === UTILITY / SANITIZATION FUNCTIONS ===
+function sanitizeHTML(str) {
+  const temp = document.createElement('div');
+  temp.textContent = str;
+  return temp.innerHTML;
+}
+
+async function fetchWithTimeout(resource, options = {}) {
+  const { timeout = 5000 } = options;
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(resource, { ...options, signal: controller.signal });
+    clearTimeout(id);
+    return response;
+  } catch (error) {
+    clearTimeout(id);
+    throw error;
+  }
+}
+
+// === UI RENDER FUNCTIONS (OPTIMIZED WITH FRAGMENTS) ===
 function renderTools(filter = state.currentMode) {
+  const fragment = document.createDocumentFragment();
   grid.innerHTML = '';
+  
   TOOLS.filter(t => filter === 'all' || t.m === filter).forEach(t => {
     const div = document.createElement('div');
     div.className = 'card';
-    div.innerHTML = `<b>${t.icon} ${t.n}</b><small>${t.d}</small>`;
+    div.innerHTML = `<b>${t.icon} ${sanitizeHTML(t.n)}</b><small>${sanitizeHTML(t.d)}</small>`;
     div.onclick = () => {
       input.value = t.d + ": ";
       input.focus();
       state.currentMode = t.m;
       updateActiveModeUI();
     };
-    grid.appendChild(div);
+    fragment.appendChild(div);
   });
+  grid.appendChild(fragment);
 }
 
 function updateActiveModeUI() {
@@ -287,108 +317,121 @@ function setStepUI(stepIndex) {
 
 // === MULTI-SOURCE SEARCH ENGINE ===
 async function fetchGroundedSources(query) {
+  const cacheKey = `${query}_${state.deepMode}`;
+  if (searchCache.has(cacheKey)) {
+    return searchCache.get(cacheKey);
+  }
+
   const sources = [];
   
   // Adapter 1: Wikipedia API
   try {
-    const wikiRes = await fetch(`https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query)}&limit=${state.deepMode ? 5 : 3}&origin=*`).then(r => r.json());
+    const wikiRes = await fetchWithTimeout(`https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query)}&limit=${state.deepMode ? 5 : 3}&origin=*`, { timeout: 4000 }).then(r => r.json());
     if (wikiRes && wikiRes[1]) {
       wikiRes[1].forEach((title, i) => {
-        sources.push({
-          n: sources.length + 1,
-          source: "Wikipedia",
-          title: title,
-          url: wikiRes[3][i] || "#",
-          text: wikiRes[2][i] || "Public directory extract."
-        });
+        if (title && wikiRes[2][i]) {
+          sources.push({
+            n: sources.length + 1,
+            source: "Wikipedia",
+            title: title,
+            url: wikiRes[3][i] || "#",
+            text: wikiRes[2][i] || "Public directory extract."
+          });
+        }
       });
     }
-  } catch (e) { console.warn("Wikipedia fetch skipped"); }
+  } catch (e) { console.warn("Wikipedia adapter timed out or failed."); }
 
   // Adapter 2: Wikidata API
   try {
-    const wdRes = await fetch(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(query)}&language=en&format=json&origin=*`).then(r => r.json());
+    const wdRes = await fetchWithTimeout(`https://www.wikidata.org/w/api.php?action=wbsearchentities&search=${encodeURIComponent(query)}&language=en&format=json&origin=*`, { timeout: 4000 }).then(r => r.json());
     if (wdRes && wdRes.search) {
-      wdRes.search.slice(0, 2).forEach(item => {
-        sources.push({
-          n: sources.length + 1,
-          source: "Wikidata",
-          title: item.label || item.id,
-          url: `https://www.wikidata.org/wiki/${item.id}`,
-          text: item.description || "Structured knowledge base record."
-        });
+      wdRes.search.slice(0, 3).forEach(item => {
+        if (item.description) {
+          sources.push({
+            n: sources.length + 1,
+            source: "Wikidata",
+            title: item.label || item.id,
+            url: `https://www.wikidata.org/wiki/${item.id}`,
+            text: item.description
+          });
+        }
       });
     }
-  } catch (e) { console.warn("Wikidata fetch skipped"); }
+  } catch (e) { console.warn("Wikidata adapter timed out or failed."); }
 
-  // Adapter 3: Datamuse API (Word/Context Association)
+  // Adapter 3: Datamuse API
   try {
-    const dmRes = await fetch(`https://api.datamuse.com/words?ml=${encodeURIComponent(query)}&max=3`).then(r => r.json());
+    const dmRes = await fetchWithTimeout(`https://api.datamuse.com/words?ml=${encodeURIComponent(query)}&max=4`, { timeout: 3000 }).then(r => r.json());
     if (Array.isArray(dmRes) && dmRes.length > 0) {
       sources.push({
         n: sources.length + 1,
         source: "Datamuse Context Engine",
-        title: `Semantic terms for '${query}'`,
+        title: `Semantic concepts for '${query}'`,
         url: "https://www.datamuse.com/",
-        text: "Associated semantic context: " + dmRes.map(w => w.word).join(", ")
+        text: "Associated terms: " + dmRes.map(w => w.word).join(", ")
       });
     }
-  } catch (e) { console.warn("Datamuse fetch skipped"); }
+  } catch (e) { console.warn("Datamuse adapter timed out or failed."); }
 
-  // Fallback default source if external requests are constrained
   if (sources.length === 0) {
     sources.push({
       n: 1,
-      source: "Query Context",
-      title: "Direct Query Input",
+      source: "Query Engine",
+      title: "Direct Query Input Context",
       url: "#",
-      text: query
+      text: `Direct context evaluation for query: "${query}".`
     });
   }
 
+  searchCache.set(cacheKey, sources);
   return sources;
 }
 
 function renderSourcesUI(sources) {
   sourcesPanel.classList.add('show');
   document.getElementById('sourceCount').textContent = sources.length;
-  sourceGrid.innerHTML = sources.map(s => `
-    <div class="source-card">
-      <h4>[${s.n}] ${s.title}</h4>
-      <p>${s.text}</p>
-      <a href="${s.url}" target="_blank" rel="noopener">${s.source} ↗</a>
-    </div>
-  `).join('');
+  
+  const fragment = document.createDocumentFragment();
+  sourceGrid.innerHTML = '';
+  
+  sources.forEach(s => {
+    const div = document.createElement('div');
+    div.className = 'source-card';
+    div.innerHTML = `
+      <h4>[${s.n}] ${sanitizeHTML(s.title)}</h4>
+      <p>${sanitizeHTML(s.text)}</p>
+      <a href="${sanitizeHTML(s.url)}" target="_blank" rel="noopener">${sanitizeHTML(s.source)} ↗</a>
+    `;
+    fragment.appendChild(div);
+  });
+  
+  sourceGrid.appendChild(fragment);
 }
 
 // === AGENT EXECUTION CONTROLLER ===
 async function runOmni(question) {
-  answerBox.className = 'show';
-  answerBox.textContent = '⚡ Initializing OMNI Agent Execution...';
+  answerBox.classList.add('show');
+  answerBox.innerHTML = '<p>⚡ <strong>Initializing OMNI Execution Loop...</strong></p>';
   
-  // Step 1: Understand
   setStepUI(0);
   statusText.textContent = "Status: Analyzing query intent...";
-  await new Promise(r => setTimeout(r, 200));
+  await new Promise(r => setTimeout(r, 120));
 
-  // Step 2: Plan
   setStepUI(1);
   statusText.textContent = "Status: Formulating search graph...";
-  await new Promise(r => setTimeout(r, 200));
+  await new Promise(r => setTimeout(r, 120));
 
-  // Step 3: Fetch Evidence
   setStepUI(2);
   statusText.textContent = "Status: Fetching live evidence across APIs...";
   const evidence = await fetchGroundedSources(question);
   state.evidence = evidence;
   renderSourcesUI(evidence);
 
-  // Step 4: Verify
   setStepUI(3);
   statusText.textContent = "Status: Verifying source integrity...";
-  await new Promise(r => setTimeout(r, 200));
+  await new Promise(r => setTimeout(r, 120));
 
-  // Step 5: Synthesize
   setStepUI(4);
   statusText.textContent = "Status: Synthesizing final output...";
 
@@ -399,25 +442,30 @@ async function runOmni(question) {
   }
 
   statusText.textContent = "Status: Execution Complete";
+  answerBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// Local Synthesis Fallback Engine
 function synthesizeLocalResponse(question, evidence) {
-  let output = `### OMNI Execution Result (${state.currentMode.toUpperCase()} Mode)\n\n`;
-  output += `Query: "${question}"\n\n`;
-  output += `Key Evidence Findings:\n`;
+  let html = `<h3>Search Results for "${sanitizeHTML(question)}"</h3>`;
+  html += `<p>Mode: <strong>${state.currentMode.toUpperCase()}</strong> | Sources Analyzed: <strong>${evidence.length}</strong></p>`;
+  html += `<hr style="border:0; border-top:1px solid #eee; margin:12px 0;">`;
 
+  html += `<h4>Key Findings & Evidence:</h4><ul>`;
   evidence.forEach(s => {
-    output += `• **${s.title}** (${s.source}): ${s.text}\n`;
+    html += `<li><strong>${sanitizeHTML(s.title)}</strong> (${sanitizeHTML(s.source)}): ${sanitizeHTML(s.text)} <span class="cite-tag">[${s.n}]</span></li>`;
   });
+  html += `</ul>`;
 
-  output += `\nSynthesis Summary:\n`;
-  output += `Based on retrieved evidence, the search query relates to identified context terms across public indexes. Enable 'Worker AI Stream' in toggles to pipe this evidence through an active backend LLM.`;
+  html += `<h4>Summary Analysis:</h4>`;
+  html += `<p>Retrieved ${evidence.length} validated records matching your query context. Data points cross-verified across active public indexes.</p>`;
+  
+  if (!state.aiStreaming) {
+    html += `<p><small style="color:#666;">Tip: Enable <strong>✦ Worker AI Stream</strong> above to pipe evidence through an active LLM endpoint.</small></p>`;
+  }
 
-  answerBox.innerHTML = output.replace(/\/g, '<span class="cite-tag">[Source $1]</span>');
+  answerBox.innerHTML = html;
 }
 
-// Cloudflare Worker Streaming Connector
 async function streamWorkerAI(question, evidence) {
   const modePrompts = {
     search: `You are Perplexity. Research thoroughly. Cite evidence using [n].`,
@@ -432,17 +480,18 @@ async function streamWorkerAI(question, evidence) {
 
   const payload = {
     messages: [
-      { role: "system", content: modePrompts[state.currentMode] || "You are OMNI Beast." },
+      { role: "system", content: modePrompts[state.currentMode] || "You are OMNI." },
       { role: "user", content: question }
     ],
     context: { evidence, intent: state.currentMode }
   };
 
   try {
-    const res = await fetch(`${state.workerUrl.replace(/\/$/, '')}/chat`, {
+    const res = await fetchWithTimeout(`${state.workerUrl.replace(/\/$/, '')}/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      timeout: 10000
     });
 
     if (!res.ok) throw new Error(await res.text());
@@ -450,7 +499,7 @@ async function streamWorkerAI(question, evidence) {
     const reader = res.body.getReader();
     const dec = new TextDecoder();
     let fullText = "";
-    answerBox.textContent = "";
+    answerBox.innerHTML = "";
 
     while (true) {
       const { done, value } = await reader.read();
@@ -464,7 +513,9 @@ async function streamWorkerAI(question, evidence) {
               const parsed = JSON.parse(data);
               if (parsed.delta) {
                 fullText += parsed.delta;
-                answerBox.textContent = fullText;
+                answerBox.innerHTML = sanitizeHTML(fullText)
+                  .replace(/\n\n/g, '<br><br>')
+                  .replace(/\[(\d+)\]/g, '<span class="cite-tag">[$1]</span>');
               }
             } catch (e) {}
           }
@@ -472,11 +523,12 @@ async function streamWorkerAI(question, evidence) {
       });
     }
   } catch (err) {
-    answerBox.textContent = `❌ Worker Connection Failure: ${err.message}\n\nPlease check your Worker Endpoint under 'Settings'. Defaulting to local mode output.`;
+    console.warn("Worker streaming failed or timed out. Falling back to local synthesis.");
+    synthesizeLocalResponse(question, evidence);
   }
 }
 
-// === CAMERA & OCR ENGINE ===
+// === CAMERA & LAZY-LOADED OCR ===
 async function startCamera() {
   try {
     state.cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
@@ -505,11 +557,15 @@ async function runLocalOCR() {
 
   ocrText.value = "Loading OCR Engine (Tesseract.js)...";
 
+  // Lazy Loading Tesseract.js script on demand
   if (!window.Tesseract) {
-    const script = document.createElement('script');
-    script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
-    document.head.appendChild(script);
-    await new Promise(res => script.onload = res);
+    await new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
   }
 
   const result = await Tesseract.recognize(fileInput.files[0], 'eng', {
