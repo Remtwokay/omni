@@ -4,110 +4,633 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <meta name="theme-color" content="#8e0300" />
-<title>OMNI</title>
+<title>OMNI AI</title>
+
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
 <style>
-  :root{--red:#e10600;--red-dark:#8e0300;--red-deep:#500100;--glow:rgba(225,6,0,0.45);--bg:linear-gradient(160deg,#2a0000 0%,#6b0100 45%,#e10600 100%);--card:rgba(0,0,0,0.4);--border:rgba(255,255,255,0.16);--white:#ffffff;--nav-h:calc(68px + env(safe-area-inset-bottom));}
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-  body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,sans-serif;background:var(--bg);background-attachment:fixed;color:var(--white);height:100dvh;overflow:hidden;display:flex;flex-direction:column;}
- .screen{flex:1;display:none;flex-direction:column;padding:16px;padding-top:max(16px,env(safe-area-inset-top));overflow-y:auto;padding-bottom:calc(var(--nav-h) + 16px);scrollbar-width:none;}
- .screen::-webkit-scrollbar{display:none;}
- .screen.active{display:flex;}
- .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
- .logo{font-size:2rem;font-weight:900;letter-spacing:5px;text-shadow:0 0 14px var(--glow);}
- .badge{background:rgba(255,255,255,0.15);border:1px solid var(--border);padding:4px 10px;border-radius:12px;font-size:0.72rem;font-weight:700;}
- .search-wrap{position:relative;margin-bottom:12px;}
-  #searchInput{width:100%;padding:15px 110px 15px 48px;border:none;border-radius:50px;font-size:1.05rem;background:white;color:#111;outline:none;box-shadow:0 10px 30px rgba(0,0,0,0.35);}
- .search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:1.2rem;color:#888;}
- .search-actions{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;gap:6px;}
- .icon-btn{width:38px;height:38px;border-radius:50%;border:none;background:var(--red);color:white;font-size:1.05rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
- .icon-btn.recording{background:#ff2400;animation:pulse 1s infinite;}
- .card{background:var(--card);backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:18px;padding:1.1rem;margin-bottom:12px;}
- .chat-box{flex:1;display:flex;flex-direction:column;gap:12px;overflow-y:auto;margin-bottom:12px;}
- .msg{max-width:88%;padding:12px 15px;border-radius:18px;font-size:0.95rem;line-height:1.45;word-break:break-word;}
- .msg.user{align-self:flex-end;background:white;color:#111;border-bottom-right-radius:4px;}
- .msg.assistant{align-self:flex-start;background:rgba(0,0,0,0.55);border:1px solid var(--border);border-bottom-left-radius:4px;}
- .btn{background:white;color:var(--red-dark);border:none;padding:13px;border-radius:14px;font-weight:800;width:100%;margin-top:8px;cursor:pointer;}
- .btn-small{background:rgba(255,255,255,0.12);border:1px solid var(--border);color:white;padding:6px 12px;border-radius:10px;font-size:0.8rem;cursor:pointer;}
-  #cameraVideo{width:100%;height:280px;object-fit:cover;border-radius:18px;background:#000;}
- .cam-controls{display:flex;justify-content:center;gap:24px;margin-top:16px;}
- .cam-btn{width:58px;height:58px;border-radius:50%;border:3px solid white;background:rgba(255,255,255,0.2);color:white;font-size:1.4rem;cursor:pointer;}
-  nav{position:fixed;bottom:0;left:0;right:0;height:var(--nav-h);background:rgba(25,0,0,0.92);backdrop-filter:blur(20px);display:flex;justify-content:space-around;align-items:flex-start;padding-top:10px;border-top:1px solid var(--border);z-index:100;}
- .nav-btn{background:none;border:none;color:rgba(255,255,255,0.5);font-size:0.75rem;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;}
- .nav-btn.active{color:white;}
- .nav-btn span:first-child{font-size:1.35rem;}
-  #toast{position:fixed;bottom:calc(var(--nav-h) + 12px);left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.9);border:1px solid var(--border);color:white;padding:9px 18px;border-radius:20px;font-size:0.85rem;z-index:200;display:none;}
-  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,36,0,0.6);}100%{box-shadow:0 0 0 12px rgba(255,36,0,0);}}
- .empty{text-align:center;padding:40px 10px;opacity:0.85;}
+  :root {
+    --red-primary: #e10600;
+    --red-dark: #8e0300;
+    --red-glow: rgba(225, 6, 0, 0.4);
+    --bg-gradient: linear-gradient(135deg, #500100 0%, #8e0300 50%, #e10600 100%);
+    --panel-card: rgba(0, 0, 0, 0.35);
+    --panel-border: rgba(255, 255, 255, 0.18);
+    --white: #ffffff;
+    --nav-height: calc(64px + env(safe-area-inset-bottom, 0px));
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-gradient);
+    background-attachment: fixed;
+    color: var(--white);
+    height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .screen {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    padding: 16px;
+    padding-top: max(16px, env(safe-area-inset-top));
+    overflow-y: auto;
+    padding-bottom: calc(var(--nav-height) + 20px);
+    scrollbar-width: none;
+  }
+  .screen::-webkit-scrollbar { display: none; }
+  .screen.active { display: flex; }
+
+  .header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 10px;
+  }
+
+  .logo {
+    font-size: 1.9rem;
+    font-weight: 900;
+    letter-spacing: 4px;
+    text-shadow: 0 0 12px var(--red-glow);
+  }
+
+  .badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    border: 1px solid var(--panel-border);
+  }
+
+  .card {
+    background: var(--panel-card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--panel-border);
+    border-radius: 20px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  .chat-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 12px;
+    overflow-y: auto;
+  }
+
+  .msg {
+    max-width: 88%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    word-break: break-word;
+  }
+  .msg.user {
+    align-self: flex-end;
+    background: var(--white);
+    color: #111;
+    border-bottom-right-radius: 4px;
+  }
+  .msg.assistant {
+    align-self: flex-start;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--panel-border);
+    border-bottom-left-radius: 4px;
+  }
+
+  .input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--white);
+    border-radius: 30px;
+    padding: 6px 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+  }
+
+  .input-wrapper input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 10px 14px;
+    font-size: 1rem;
+    color: #111;
+    background: transparent;
+  }
+
+  .btn-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: var(--red-primary);
+    color: var(--white);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    margin-left: 4px;
+  }
+  .btn-icon.recording { animation: pulse 1s infinite alternate; background: #ff2400; }
+
+  .btn {
+    background: var(--white);
+    color: var(--red-dark);
+    border: none;
+    padding: 12px 18px;
+    border-radius: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .btn-small {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid var(--panel-border);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: var(--nav-height);
+    background: rgba(40, 0, 0, 0.85);
+    backdrop-filter: blur(25px);
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    padding-top: 10px;
+    border-top: 1px solid var(--panel-border);
+    z-index: 1000;
+  }
+
+  .nav-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+  }
+  .nav-btn.active { color: var(--white); }
+
+  #toast {
+    position: fixed;
+    bottom: calc(var(--nav-height) + 15px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid var(--panel-border);
+    color: var(--white);
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    z-index: 2000;
+    display: none;
+  }
+
+  .chat-list-item {
+    padding: 12px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.08);
+    margin-bottom: 8px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .chat-list-item.active {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid var(--panel-border);
+  }
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 36, 0, 0.7); }
+    100% { box-shadow: 0 0 0 12px rgba(255, 36, 0, 0); }
+  }
 </style>
 </head>
 <body>
+
+<!-- HOME / CHAT -->
 <div id="homeScreen" class="screen active">
-  <div class="header"><div class="logo">OMNI</div><span class="badge" id="modeBadge">Cloud</span></div>
-  <div class="search-wrap"><span class="search-icon">🔍</span><input id="searchInput" type="text" placeholder="Search or ask anything..." autocomplete="off" /><div class="search-actions"><button class="icon-btn" id="voiceBtn">🎤</button><button class="icon-btn" id="aiBtn">✦</button></div></div>
-  <div id="resultsArea"><div class="empty"><div style="font-size:2.4rem;margin-bottom:8px;">✦</div><p>Search the web or tap ✦ for AI Assistant</p></div></div>
+  <div class="header-bar">
+    <div class="logo">OMNI</div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <span class="badge" id="engineBadge">Cloud Mode</span>
+      <button class="btn-small" onclick="newChat()">+ New</button>
+    </div>
+  </div>
+
+  <div class="chat-box" id="chatContainer">
+    <div class="msg assistant">
+      Hello! I’m OMNI. Ask me anything. You can also load a local WebGPU model in Settings or add your Claude key for stronger answers.
+    </div>
+  </div>
+
+  <div class="input-wrapper">
+    <input id="promptInput" type="text" placeholder="Ask OMNI..." autocomplete="off" />
+    <button class="btn-icon" id="voiceBtn" title="Voice">🎤</button>
+    <button class="btn-icon" id="sendBtn" title="Send">➔</button>
+  </div>
 </div>
-<div id="cameraScreen" class="screen"><div class="header"><h2>Camera</h2></div><video id="cameraVideo" autoplay playsinline muted></video><div class="cam-controls"><button class="cam-btn" id="switchCam">🔄</button><button class="cam-btn" id="captureBtn" style="background:white;color:var(--red);">📷</button></div></div>
-<div id="assistantScreen" class="screen"><div class="header"><h2>AI Assistant</h2><button class="btn-small" onclick="newChat()">+ New</button></div><div class="chat-box" id="chatBox"><div class="msg assistant">Hi, I’m OMNI. Ask me anything or use the search on Home for web results.</div></div><div class="search-wrap" style="margin-top:auto;"><input id="chatInput" type="text" placeholder="Message OMNI..." style="padding-left:18px;padding-right:50px;" /><div class="search-actions"><button class="icon-btn" id="chatSend">➔</button></div></div></div>
-<div id="profileScreen" class="screen">
-  <div class="header"><h2>Profile</h2></div>
-  <div class="card"><h3>Groq API Key (FREE)</h3><p style="font-size:0.85rem;opacity:0.8;margin:6px 0;">Get free key at console.groq.com → Stored only in this browser.</p><input type="password" id="apiKeyInput" placeholder="gsk_..." style="width:100%;padding:12px;border-radius:12px;border:none;margin-top:6px;"><button class="btn" id="saveKeyBtn">Save Key</button></div>
-  <div class="card"><h3>Local WebGPU Model</h3><p style="font-size:0.85rem;opacity:0.8;margin:6px 0;" id="gpuStatus">Checking hardware...</p><button class="btn" onclick="loadLocalModel()">Load On-Device Model</button></div>
-  <div class="card"><h3>Saved Items</h3><div id="savedPreview" style="font-size:0.9rem;opacity:0.85;">0 items</div><button class="btn" onclick="clearSaved()">Clear Saved</button></div>
+
+<!-- CHATS LIST -->
+<div id="chatsScreen" class="screen">
+  <div class="header-bar">
+    <h2>Conversations</h2>
+    <button class="btn-small" onclick="newChat()">+ New Chat</button>
+  </div>
+  <div id="chatList"></div>
 </div>
+
+<!-- SETTINGS -->
+<div id="settingsScreen" class="screen">
+  <div class="header-bar">
+    <h2>Settings</h2>
+  </div>
+
+  <div class="card">
+    <h3>Claude API Key (Cloud)</h3>
+    <p style="font-size:0.85rem;opacity:0.8;margin:6px 0;">Used when local model is not loaded. Stored only in this browser.</p>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-..." style="width:100%;padding:12px;border-radius:12px;border:none;margin-top:6px;">
+    <button class="btn" onclick="saveApiKey()">Save Key</button>
+  </div>
+
+  <div class="card">
+    <h3>Local WebGPU Engine</h3>
+    <p style="font-size:0.85rem;opacity:0.8;margin:6px 0;" id="gpuDetails">Checking hardware...</p>
+    <button class="btn" onclick="initWebGPU()">Load On-Device AI</button>
+  </div>
+
+  <div class="card">
+    <h3>Data</h3>
+    <button class="btn" onclick="clearAllData()" style="background:#ff2400;color:white;">Clear All Chats & Data</button>
+  </div>
+</div>
+
+<!-- NAV -->
 <nav>
-  <button class="nav-btn active" data-screen="home"><span>🏠</span><span>Home</span></button>
-  <button class="nav-btn" data-screen="camera"><span>📷</span><span>Camera</span></button>
-  <button class="nav-btn" data-screen="assistant"><span>✦</span><span>Assistant</span></button>
-  <button class="nav-btn" data-screen="profile"><span>👤</span><span>Profile</span></button>
+  <button class="nav-btn active" data-screen="home" onclick="navigate('home')">
+    <span>💬</span><span>Chat</span>
+  </button>
+  <button class="nav-btn" data-screen="chats" onclick="navigate('chats')">
+    <span>🗂️</span><span>Chats</span>
+  </button>
+  <button class="nav-btn" data-screen="settings" onclick="navigate('settings')">
+    <span>⚙️</span><span>Settings</span>
+  </button>
 </nav>
+
 <div id="toast"></div>
-<script type="module">import { CreateMLCEngine } from "https://esm.run/@mlc-ai/web-llm"; window.CreateMLCEngine = CreateMLCEngine;</script>
+
+<script type="module">
+  import { CreateMLCEngine } from "https://esm.run/@mlc-ai/web-llm";
+  window.CreateMLCEngine = CreateMLCEngine;
+</script>
+
 <script>
-let localEngine=null;let currentStream=null;let facingMode="environment";let conversations=JSON.parse(localStorage.getItem("omni_chats")||"[]");let currentChatId=localStorage.getItem("omni_current")||null;let downloads=JSON.parse(localStorage.getItem("omni_saved")||"[]");
-const screens={home:document.getElementById("homeScreen"),camera:document.getElementById("cameraScreen"),assistant:document.getElementById("assistantScreen"),profile:document.getElementById("profileScreen")};
-const searchInput=document.getElementById("searchInput");const resultsArea=document.getElementById("resultsArea");const chatBox=document.getElementById("chatBox");const chatInput=document.getElementById("chatInput");const apiKeyInput=document.getElementById("apiKeyInput");const modeBadge=document.getElementById("modeBadge");
-apiKeyInput.value=localStorage.getItem("omni_key")||"";
-function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.style.display="block";setTimeout(()=>t.style.display="none",2300);}
-function saveChats(){localStorage.setItem("omni_chats",JSON.stringify(conversations));localStorage.setItem("omni_current",currentChatId);}
-document.querySelectorAll(".nav-btn").forEach(btn=>{btn.addEventListener("click",()=>{const target=btn.dataset.screen;Object.values(screens).forEach(s=>s.classList.remove("active"));document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));screens[target].classList.add("active");btn.classList.add("active");if(target==="camera")startCamera();else stopCamera();if(target==="assistant")loadChat();if(target==="profile"){document.getElementById("savedPreview").textContent=downloads.length+" items";checkGPU();}});});
-searchInput.addEventListener("keydown",e=>{if(e.key==="Enter")doSearch(searchInput.value.trim());});
-document.getElementById("aiBtn").onclick=()=>{document.querySelector('.nav-btn[data-screen="assistant"]').click();};
-document.getElementById("voiceBtn").onclick=()=>{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return showToast("Voice not supported");const rec=new SR();rec.lang="en-US";rec.onstart=()=>document.getElementById("voiceBtn").classList.add("recording");rec.onend=()=>document.getElementById("voiceBtn").classList.remove("recording");rec.onresult=e=>{searchInput.value=e.results[0][0].transcript;doSearch(searchInput.value);};rec.start();showToast("Listening…");};
-async function doSearch(query){if(!query)return;resultsArea.innerHTML=`<div class="card"><p>Searching…</p></div>`;try{const[wiki,ddg]=await Promise.all([fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`).then(r=>r.ok?r.json():null).catch(()=>null),fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json`).then(r=>r.json()).catch(()=>({}))]);let html="";let context="";if(wiki?.extract){html+=`<div class="card"><h3>${wiki.title}</h3><p>${wiki.extract}</p><a href="${wiki.content_urls?.desktop?.page||'#'}" target="_blank" style="color:#ffd6d6;">Read more</a></div>`;context+=wiki.extract+"\n";}if(ddg.AbstractText){html+=`<div class="card"><h3>${ddg.Heading||"Summary"}</h3><p>${ddg.AbstractText}</p></div>`;context+=ddg.AbstractText;}const key=localStorage.getItem("omni_key");if(key){const answer=await askClaude(query,context,key);if(answer){html=`<div class="card"><h3>OMNI Answer</h3><p>${answer.replace(/\n/g,"<br>")}</p></div>`+html;}}resultsArea.innerHTML=html||`<div class="card"><p>No results found.</p></div>`;}catch{resultsArea.innerHTML=`<div class="card"><p>Search failed. Check connection.</p></div>`;}}
-function newChat(){const id="c_"+Date.now();conversations.unshift({id,title:"New Chat",messages:[{role:"assistant",content:"New conversation started. How can I help?"}]});currentChatId=id;saveChats();loadChat();showToast("New chat");}
-function loadChat(){chatBox.innerHTML="";let chat=conversations.find(c=>c.id===currentChatId);if(!chat){newChat();return;}chat.messages.forEach(m=>{const div=document.createElement("div");div.className=`msg ${m.role}`;div.innerHTML=DOMPurify.sanitize(marked.parse(m.content));chatBox.appendChild(div);});chatBox.scrollTop=chatBox.scrollHeight;}
-document.getElementById("chatSend").onclick=sendChat;chatInput.addEventListener("keydown",e=>{if(e.key==="Enter")sendChat();});
-async function sendChat(){const text=chatInput.value.trim();if(!text)return;chatInput.value="";appendChat("user",text);const replyDiv=appendChat("assistant","Thinking…");if(localEngine){try{const stream=await localEngine.chat.completions.create({messages:[{role:"user",content:text}],stream:true});let full="";for await(const chunk of stream){full+=chunk.choices[0]?.delta?.content||"";replyDiv.innerHTML=DOMPurify.sanitize(marked.parse(full));chatBox.scrollTop=chatBox.scrollHeight;}saveMessage("assistant",full);return;}catch{}}const key=localStorage.getItem("omni_key");if(!key){replyDiv.innerHTML="Add your Groq API key in Profile → get free at console.groq.com/keys";return;}const answer=await askClaude(text,"",key);replyDiv.innerHTML=DOMPurify.sanitize(marked.parse(answer||"Error - check key"));saveMessage("assistant",answer||"Error");}
-function appendChat(role,content){const div=document.createElement("div");div.className=`msg ${role}`;div.innerHTML=DOMPurify.sanitize(marked.parse(content));chatBox.appendChild(div);chatBox.scrollTop=chatBox.scrollHeight;if(role==="user")saveMessage("user",content);return div;}
-function saveMessage(role,content){const chat=conversations.find(c=>c.id===currentChatId);if(!chat)return;chat.messages.push({role,content});if(role==="user"&&chat.title==="New Chat"){chat.title=content.slice(0,36)+(content.length>36?"…":"");}saveChats();}
-// FIXED: GROQ VERSION - WORKS ON GITHUB PAGES
-async function askClaude(query,context,key){
-  try{
-    const res=await fetch("https://api.groq.com/openai/v1/chat/completions",{
-      method:"POST",
-      headers:{"content-type":"application/json","Authorization":`Bearer ${key}`},
-      body:JSON.stringify({
-        model:"llama-3.1-8b-instant",
-        max_tokens:1024,
-        messages:[{role:"user",content: context? `Context:\n${context}\n\nQuestion: ${query}` : query}]
+/* ===================== STATE ===================== */
+let localEngine = null;
+let conversations = JSON.parse(localStorage.getItem("omni_conversations") || "[]");
+let currentChatId = localStorage.getItem("omni_current_chat") || null;
+
+const chatContainer = document.getElementById("chatContainer");
+const promptInput = document.getElementById("promptInput");
+const engineBadge = document.getElementById("engineBadge");
+const apiKeyInput = document.getElementById("apiKeyInput");
+
+apiKeyInput.value = localStorage.getItem("omni_claude_key") || "";
+
+/* ===================== HELPERS ===================== */
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.style.display = "block";
+  setTimeout(() => t.style.display = "none", 2500);
+}
+
+function saveConversations() {
+  localStorage.setItem("omni_conversations", JSON.stringify(conversations));
+  localStorage.setItem("omni_current_chat", currentChatId);
+}
+
+function generateId() {
+  return "chat_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7);
+}
+
+/* ===================== NAVIGATION ===================== */
+function navigate(screen) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+
+  document.getElementById(screen + "Screen").classList.add("active");
+  document.querySelector(`.nav-btn[data-screen="${screen}"]`).classList.add("active");
+
+  if (screen === "chats") renderChatList();
+  if (screen === "settings") verifyHardware();
+}
+
+/* ===================== CHAT MANAGEMENT ===================== */
+function newChat() {
+  const id = generateId();
+  const chat = {
+    id,
+    title: "New Conversation",
+    messages: [
+      { role: "assistant", content: "New chat started. How can I help you?" }
+    ],
+    updatedAt: Date.now()
+  };
+  conversations.unshift(chat);
+  currentChatId = id;
+  saveConversations();
+  loadCurrentChat();
+  navigate("home");
+  showToast("New chat created");
+}
+
+function loadCurrentChat() {
+  chatContainer.innerHTML = "";
+  const chat = conversations.find(c => c.id === currentChatId);
+  if (!chat) {
+    newChat();
+    return;
+  }
+  chat.messages.forEach(m => appendMessage(m.role, m.content, false));
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+function renderChatList() {
+  const list = document.getElementById("chatList");
+  if (!conversations.length) {
+    list.innerHTML = `<div class="card"><p>No conversations yet.</p></div>`;
+    return;
+  }
+  list.innerHTML = conversations.map(c => `
+    <div class="chat-list-item ${c.id === currentChatId ? 'active' : ''}" onclick="switchChat('${c.id}')">
+      <div>
+        <div style="font-weight:700;">${c.title}</div>
+        <small style="opacity:0.7">${new Date(c.updatedAt).toLocaleString()}</small>
+      </div>
+      <button class="btn-small" onclick="event.stopPropagation();deleteChat('${c.id}')">✕</button>
+    </div>
+  `).join("");
+}
+
+function switchChat(id) {
+  currentChatId = id;
+  saveConversations();
+  loadCurrentChat();
+  navigate("home");
+}
+
+function deleteChat(id) {
+  conversations = conversations.filter(c => c.id !== id);
+  if (currentChatId === id) {
+    currentChatId = conversations[0]?.id || null;
+  }
+  saveConversations();
+  renderChatList();
+  if (!conversations.length) newChat();
+  showToast("Chat deleted");
+}
+
+/* ===================== MESSAGES ===================== */
+function appendMessage(role, text, save = true) {
+  const msg = document.createElement("div");
+  msg.className = `msg ${role}`;
+  msg.innerHTML = DOMPurify.sanitize(marked.parse(text || ""));
+  chatContainer.appendChild(msg);
+  chatContainer.scrollTop = chatContainer.scrollHeight;
+
+  if (save) {
+    const chat = conversations.find(c => c.id === currentChatId);
+    if (chat) {
+      chat.messages.push({ role, content: text });
+      chat.updatedAt = Date.now();
+      if (role === "user" && chat.title === "New Conversation") {
+        chat.title = text.slice(0, 40) + (text.length > 40 ? "..." : "");
+      }
+      saveConversations();
+    }
+  }
+  return msg;
+}
+
+/* ===================== SEND MESSAGE ===================== */
+document.getElementById("sendBtn").onclick = sendMessage;
+promptInput.addEventListener("keydown", e => {
+  if (e.key === "Enter") sendMessage();
+});
+
+async function sendMessage() {
+  const prompt = promptInput.value.trim();
+  if (!prompt) return;
+
+  appendMessage("user", prompt);
+  promptInput.value = "";
+
+  const responseEl = appendMessage("assistant", "Thinking...", false);
+
+  // Prefer local engine if available
+  if (localEngine) {
+    try {
+      const stream = await localEngine.chat.completions.create({
+        messages: [{ role: "user", content: prompt }],
+        stream: true
+      });
+      let full = "";
+      for await (const chunk of stream) {
+        full += chunk.choices[0]?.delta?.content || "";
+        responseEl.innerHTML = DOMPurify.sanitize(marked.parse(full));
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+      // save final
+      const chat = conversations.find(c => c.id === currentChatId);
+      if (chat) {
+        chat.messages.push({ role: "assistant", content: full });
+        chat.updatedAt = Date.now();
+        saveConversations();
+      }
+      addExportButton(responseEl, full);
+      return;
+    } catch (e) {
+      responseEl.textContent = "Local model error. Falling back to cloud...";
+    }
+  }
+
+  // Cloud fallback (Claude)
+  const key = localStorage.getItem("omni_claude_key");
+  if (!key) {
+    responseEl.innerHTML = DOMPurify.sanitize(marked.parse("No local model loaded and no Claude API key set.\n\nGo to **Settings** to add your key or load the on-device model."));
+    return;
+  }
+
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": key,
+        "anthropic-version": "2023-06-01"
+      },
+      body: JSON.stringify({
+        model: "claude-3-5-sonnet-20241022",
+        max_tokens: 1024,
+        messages: [{ role: "user", content: prompt }]
       })
     });
-    if(!res.ok){const err=await res.text();console.log(err);return null;}
-    const data=await res.json();
-    return data.choices?.[0]?.message?.content||null;
-  }catch(e){console.log(e);return null;}
+
+    if (!res.ok) throw new Error("API error");
+    const data = await res.json();
+    const text = data.content?.[0]?.text || "No response";
+    responseEl.innerHTML = DOMPurify.sanitize(marked.parse(text));
+
+    const chat = conversations.find(c => c.id === currentChatId);
+    if (chat) {
+      chat.messages.push({ role: "assistant", content: text });
+      chat.updatedAt = Date.now();
+      saveConversations();
+    }
+    addExportButton(responseEl, text);
+  } catch (err) {
+    responseEl.textContent = "Failed to get response. Check your API key or connection.";
+  }
 }
-async function startCamera(){stopCamera();try{currentStream=await navigator.mediaDevices.getUserMedia({video:{facingMode},audio:false});document.getElementById("cameraVideo").srcObject=currentStream;}catch{showToast("Camera needs HTTPS or localhost");}}
-function stopCamera(){if(currentStream){currentStream.getTracks().forEach(t=>t.stop());currentStream=null;}}
-document.getElementById("switchCam").onclick=()=>{facingMode=facingMode==="environment"?"user":"environment";startCamera();};
-document.getElementById("captureBtn").onclick=()=>{const video=document.getElementById("cameraVideo");const canvas=document.createElement("canvas");canvas.width=video.videoWidth||640;canvas.height=video.videoHeight||480;canvas.getContext("2d").drawImage(video,0,0);const dataUrl=canvas.toDataURL("image/jpeg",0.9);downloads.unshift({url:dataUrl,title:"Photo "+new Date().toLocaleTimeString(),date:Date.now()});localStorage.setItem("omni_saved",JSON.stringify(downloads));showToast("Photo saved");};
-document.getElementById("saveKeyBtn").onclick=()=>{localStorage.setItem("omni_key",apiKeyInput.value.trim());showToast("API key saved - now try Assistant!");};
-async function checkGPU(){const el=document.getElementById("gpuStatus");if(!navigator.gpu){el.innerHTML="<span style='color:#ff9999;'>WebGPU not supported</span>";return;}try{const adapter=await navigator.gpu.requestAdapter();el.innerHTML=adapter?"<span style='color:#99ff99;'>WebGPU ready - you can load local model</span>":"<span style='color:#ff9999;'>No GPU adapter</span>";}catch{el.innerHTML="<span style='color:#ff9999;'>GPU check failed</span>";}}
-async function loadLocalModel(){if(!window.CreateMLCEngine)return showToast("Library loading… try again");modeBadge.textContent="Loading…";try{localEngine=await window.CreateMLCEngine("Llama-3.2-1B-Instruct-q4f16_1-MLC",{initProgressCallback:p=>{modeBadge.textContent=`GPU ${Math.round((p.progress||0)*100)}%`;}});modeBadge.textContent="Local GPU";modeBadge.style.background="#00c853";showToast("Local model ready");}catch{modeBadge.textContent="Cloud";showToast("Failed to load local model");}}
-function clearSaved(){if(confirm("Clear all saved items?")){downloads=[];localStorage.setItem("omni_saved","[]");document.getElementById("savedPreview").textContent="0 items";showToast("Cleared");}}
-if(!conversations.length){newChat();}else{if(!currentChatId||!conversations.find(c=>c.id===currentChatId)){currentChatId=conversations[0].id;}}
+
+function addExportButton(node, text) {
+  const btn = document.createElement("button");
+  btn.className = "btn-small";
+  btn.style.marginTop = "8px";
+  btn.textContent = "Export";
+  btn.onclick = () => exportText(text);
+  node.appendChild(btn);
+}
+
+function exportText(text) {
+  if (navigator.share) {
+    navigator.share({ title: "OMNI", text }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(text);
+    showToast("Copied to clipboard");
+  }
+}
+
+/* ===================== SETTINGS ===================== */
+function saveApiKey() {
+  localStorage.setItem("omni_claude_key", apiKeyInput.value.trim());
+  showToast("API key saved");
+}
+
+async function verifyHardware() {
+  const details = document.getElementById("gpuDetails");
+  if (!navigator.gpu) {
+    details.innerHTML = "<span style='color:#ff9999;'>WebGPU not supported. Using Cloud mode.</span>";
+    return;
+  }
+  try {
+    const adapter = await navigator.gpu.requestAdapter();
+    details.innerHTML = adapter
+      ? "<span style='color:#99ff99;'>WebGPU available – you can load a local model.</span>"
+      : "<span style='color:#ff9999;'>No compatible GPU adapter found.</span>";
+  } catch {
+    details.innerHTML = "<span style='color:#ff9999;'>WebGPU check failed.</span>";
+  }
+}
+
+async function initWebGPU() {
+  if (!window.CreateMLCEngine) {
+    showToast("WebLLM still loading… try again in a few seconds");
+    return;
+  }
+  engineBadge.textContent = "Loading…";
+  try {
+    localEngine = await window.CreateMLCEngine("Llama-3.2-1B-Instruct-q4f16_1-MLC", {
+      initProgressCallback: (p) => {
+        engineBadge.textContent = `Loading ${Math.round((p.progress || 0) * 100)}%`;
+      }
+    });
+    engineBadge.textContent = "Local WebGPU";
+    engineBadge.style.background = "#00c853";
+    showToast("Local model ready");
+  } catch (err) {
+    engineBadge.textContent = "Cloud Mode";
+    showToast("Failed to load local model");
+  }
+}
+
+function clearAllData() {
+  if (confirm("Delete all conversations and settings?")) {
+    localStorage.removeItem("omni_conversations");
+    localStorage.removeItem("omni_current_chat");
+    localStorage.removeItem("omni_claude_key");
+    conversations = [];
+    currentChatId = null;
+    newChat();
+    showToast("All data cleared");
+  }
+}
+
+/* ===================== VOICE ===================== */
+const voiceBtn = document.getElementById("voiceBtn");
+if ("SpeechRecognition" in window || "webkitSpeechRecognition" in window) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = true;
+
+  recognition.onresult = (e) => {
+    promptInput.value = Array.from(e.results).map(r => r[0].transcript).join("");
+  };
+  recognition.onend = () => voiceBtn.classList.remove("recording");
+
+  voiceBtn.onclick = () => {
+    if (voiceBtn.classList.contains("recording")) {
+      recognition.stop();
+    } else {
+      recognition.start();
+      voiceBtn.classList.add("recording");
+      showToast("Listening…");
+    }
+  };
+} else {
+  voiceBtn.onclick = () => showToast("Speech recognition not supported");
+}
+
+/* ===================== INIT ===================== */
+if (!conversations.length) {
+  newChat();
+} else {
+  if (!currentChatId || !conversations.find(c => c.id === currentChatId)) {
+    currentChatId = conversations[0].id;
+  }
+  loadCurrentChat();
+}
 </script>
 </body>
 </html>
