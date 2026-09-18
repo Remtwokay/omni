@@ -1,1804 +1,214 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="OMNI Research is a source-grounded AI search workspace for web and academic research.">
-  <meta property="og:title" content="OMNI Research">
-  <meta property="og:description" content="Search, compare, and synthesize evidence with citations.">
-  <title>OMNI Research — Source-grounded AI search</title>
-
-  <style>
-    :root {
-      --bg: #080b12;
-      --panel: #101722;
-      --panel-2: #151e2c;
-      --line: #263448;
-      --text: #f3f7fb;
-      --muted: #91a2b8;
-      --accent: #ff4d5a;
-      --accent-2: #ff806d;
-      --cyan: #66d9ef;
-      --green: #5ce1a2;
-      --shadow: 0 24px 70px rgba(0, 0, 0, .35);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      margin: 0;
-      background:
-        radial-gradient(circle at 15% -10%, #321520 0, transparent 34rem),
-        radial-gradient(circle at 100% 20%, #102a3c 0, transparent 32rem),
-        var(--bg);
-      color: var(--text);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-      min-height: 100vh;
-    }
-
-    button,
-    input,
-    textarea,
-    select {
-      font: inherit;
-    }
-
-    button {
-      cursor: pointer;
-    }
-
-    [hidden],
-    .loading-state[hidden],
-    #results[hidden],
-    #emptyState[hidden] {
-      display: none !important;
-    }
-
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-
-    .skip-link {
-      position: absolute;
-      left: -999px;
-      top: 8px;
-      background: #fff;
-      color: #111;
-      padding: 8px 12px;
-      border-radius: 8px;
-      z-index: 5;
-    }
-
-    .skip-link:focus {
-      left: 8px;
-    }
-
-    .site-header {
-      border-bottom: 1px solid rgba(255, 255, 255, .08);
-      background: rgba(8, 11, 18, .72);
-      backdrop-filter: blur(18px);
-      position: sticky;
-      top: 0;
-      z-index: 3;
-    }
-
-    .brand-row,
-    .shell {
-      max-width: 1220px;
-      margin: auto;
-    }
-
-    .brand-row {
-      height: 72px;
-      padding: 0 28px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: var(--text);
-      text-decoration: none;
-      font-size: 19px;
-      font-weight: 900;
-      letter-spacing: 3px;
-    }
-
-    .brand small {
-      font-size: 9px;
-      letter-spacing: 1.5px;
-      color: var(--muted);
-      font-weight: 700;
-      border-left: 1px solid var(--line);
-      padding-left: 10px;
-    }
-
-    .brand-mark {
-      display: grid;
-      place-items: center;
-      width: 31px;
-      height: 31px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, var(--accent), #9f1d47);
-      box-shadow: 0 7px 24px rgba(255, 77, 90, .32);
-      font-size: 18px;
-      letter-spacing: 0;
-    }
-
-    .header-actions,
-    .toolbar-actions,
-    .search-controls,
-    .trust-row,
-    .suggestion-row,
-    .dialog-actions,
-    .source-tabs,
-    .filter-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .ghost-button,
-    .icon-button,
-    .danger-button {
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, .035);
-      color: var(--text);
-      border-radius: 10px;
-      padding: 9px 13px;
-    }
-
-    .ghost-button:hover,
-    .icon-button:hover {
-      border-color: #60738e;
-      background: rgba(255, 255, 255, .08);
-    }
-
-    .icon-button {
-      font-size: 18px;
-      line-height: 1;
-      padding: 9px 11px;
-    }
-
-    .shell {
-      padding: 56px 28px 20px;
-    }
-
-    .hero {
-      max-width: 900px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .eyebrow {
-      font-size: 10px;
-      letter-spacing: 2px;
-      font-weight: 800;
-      color: var(--accent-2);
-      margin: 0 0 10px;
-    }
-
-    .hero h1 {
-      font-size: clamp(38px, 6vw, 70px);
-      line-height: 1.02;
-      letter-spacing: -3px;
-      margin: 0;
-      background: linear-gradient(
-        120deg,
-        #fff 20%,
-        #ffadb0 68%,
-        #75e5f2
-      );
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .hero-copy {
-      max-width: 650px;
-      margin: 18px auto 30px;
-      color: var(--muted);
-      line-height: 1.65;
-    }
-
-    .search-form {
-      background: rgba(16, 23, 34, .85);
-      border: 1px solid #34445b;
-      border-radius: 20px;
-      padding: 10px;
-      box-shadow: var(--shadow);
-      text-align: left;
-    }
-
-    .search-form:focus-within {
-      border-color: var(--accent);
-      box-shadow:
-        0 0 0 4px rgba(255, 77, 90, .13),
-        var(--shadow);
-    }
-
-    #query {
-      width: 100%;
-      resize: vertical;
-      min-height: 70px;
-      background: transparent;
-      border: 0;
-      outline: 0;
-      color: var(--text);
-      padding: 8px 10px;
-      font-size: 17px;
-      line-height: 1.5;
-    }
-
-    #query::placeholder {
-      color: #71829a;
-    }
-
-    .search-controls {
-      justify-content: space-between;
-      border-top: 1px solid var(--line);
-      padding: 10px 8px 0;
-      flex-wrap: wrap;
-    }
-
-    .control-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .control-group label,
-    .switch-label {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    select,
-    input[type="url"],
-    input[type="number"] {
-      background: var(--panel-2);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      color: var(--text);
-      padding: 8px 10px;
-      outline: none;
-    }
-
-    .primary-button {
-      border: 0;
-      border-radius: 10px;
-      background: linear-gradient(135deg, var(--accent), #c92558);
-      color: #fff;
-      font-weight: 800;
-      padding: 11px 15px;
-      box-shadow: 0 7px 20px rgba(255, 77, 90, .2);
-      display: inline-flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .primary-button:hover {
-      filter: brightness(1.1);
-      transform: translateY(-1px);
-    }
-
-    .primary-button:disabled {
-      opacity: .65;
-      cursor: wait;
-      transform: none;
-    }
-
-    kbd {
-      font-size: 10px;
-      color: #ffd9dd;
-      border: 1px solid rgba(255, 255, 255, .3);
-      border-radius: 5px;
-      padding: 2px 5px;
-    }
-
-    .trust-row {
-      justify-content: center;
-      flex-wrap: wrap;
-      color: #9db0c7;
-      font-size: 12px;
-      margin: 18px 0 54px;
-    }
-
-    .trust-row span {
-      padding: 5px 8px;
-      border: 1px solid rgba(255, 255, 255, .08);
-      border-radius: 20px;
-    }
-
-    .workspace {
-      max-width: 1164px;
-      margin: 0 auto;
-    }
-
-    .workspace-toolbar {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      align-items: center;
-      margin-bottom: 14px;
-      flex-wrap: wrap;
-    }
-
-    .source-tabs {
-      overflow: auto;
-    }
-
-    .source-tab,
-    .filter {
-      border: 0;
-      background: transparent;
-      color: var(--muted);
-      padding: 9px 12px;
-      border-radius: 8px;
-      white-space: nowrap;
-    }
-
-    .source-tab.active,
-    .source-tab:hover,
-    .filter.active {
-      color: #fff;
-      background: #1b2738;
-    }
-
-    .switch-label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-    }
-
-    .switch-label input {
-      position: absolute;
-      opacity: 0;
-    }
-
-    .switch {
-      width: 31px;
-      height: 18px;
-      background: #2c3b4e;
-      border-radius: 20px;
-      position: relative;
-    }
-
-    .switch:after {
-      content: "";
-      position: absolute;
-      width: 12px;
-      height: 12px;
-      background: #9eafc2;
-      border-radius: 50%;
-      top: 3px;
-      left: 3px;
-      transition: .2s;
-    }
-
-    .switch-label input:checked + .switch {
-      background: var(--accent);
-    }
-
-    .switch-label input:checked + .switch:after {
-      left: 16px;
-      background: #fff;
-    }
-
-    .empty-state {
-      border: 1px dashed #304158;
-      border-radius: 18px;
-      padding: 58px 20px;
-      text-align: center;
-      background: rgba(16, 23, 34, .46);
-    }
-
-    .empty-orbit {
-      width: 62px;
-      height: 62px;
-      margin: 0 auto 18px;
-      display: grid;
-      place-items: center;
-      border: 1px solid #69414f;
-      border-radius: 50%;
-      color: #ff8b8e;
-      font-size: 27px;
-      box-shadow:
-        0 0 0 11px rgba(255, 77, 90, .05),
-        0 0 0 22px rgba(255, 77, 90, .025);
-    }
-
-    .empty-state h2 {
-      margin: 0 0 8px;
-      font-size: 22px;
-    }
-
-    .empty-state p {
-      color: var(--muted);
-      max-width: 560px;
-      margin: 0 auto 20px;
-      line-height: 1.6;
-    }
-
-    .suggestion {
-      border: 1px solid var(--line);
-      background: rgba(255, 255, 255, .035);
-      color: #c4d0de;
-      padding: 9px 12px;
-      border-radius: 9px;
-      font-size: 12px;
-    }
-
-    .suggestion:hover {
-      border-color: #7386a0;
-      color: #fff;
-    }
-
-    .loading-state {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      border: 1px solid #36465b;
-      border-radius: 18px;
-      padding: 28px;
-      background: #101722;
-    }
-
-    .loading-state p {
-      color: var(--muted);
-      margin: 4px 0 0;
-      font-size: 13px;
-    }
-
-    .loader {
-      width: 27px;
-      height: 27px;
-      border: 3px solid #3a4a61;
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    .results-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.55fr) minmax(300px, .85fr);
-      gap: 16px;
-    }
-
-    .answer-panel,
-    .sources-panel {
-      background: rgba(16, 23, 34, .9);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 22px;
-      min-width: 0;
-    }
-
-    .panel-heading {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 14px;
-      border-bottom: 1px solid var(--line);
-      padding-bottom: 16px;
-      margin-bottom: 18px;
-    }
-
-    .panel-heading h2 {
-      font-size: 22px;
-      margin: 0;
-    }
-
-    .confidence,
-    .source-count {
-      font-size: 11px;
-      border: 1px solid #37536a;
-      color: var(--cyan);
-      border-radius: 20px;
-      padding: 5px 9px;
-      white-space: nowrap;
-    }
-
-    .answer-content {
-      font-size: 15px;
-      line-height: 1.75;
-      color: #dce5ef;
-    }
-
-    .answer-content h3 {
-      font-size: 18px;
-      color: #fff;
-      margin: 20px 0 8px;
-    }
-
-    .answer-content p {
-      margin: 0 0 14px;
-    }
-
-    .answer-content ul {
-      padding-left: 22px;
-      margin: 0 0 16px;
-    }
-
-    .answer-content li {
-      margin: 5px 0;
-    }
-
-    .citation {
-      color: #ff9da2;
-      background: rgba(255, 77, 90, .12);
-      border-radius: 5px;
-      padding: 1px 5px;
-      font-size: 12px;
-      font-weight: 800;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-
-    .answer-meta {
-      color: #71849c;
-      border-top: 1px solid var(--line);
-      margin-top: 20px;
-      padding-top: 13px;
-      font-size: 11px;
-    }
-
-    .filter-row {
-      margin-bottom: 10px;
-    }
-
-    .filter {
-      font-size: 11px;
-      padding: 6px 8px;
-    }
-
-    .source-list {
-      display: grid;
-      gap: 10px;
-      max-height: 610px;
-      overflow: auto;
-      padding-right: 3px;
-    }
-
-    .source-card {
-      border: 1px solid #27374a;
-      background: #121b28;
-      border-radius: 11px;
-      padding: 12px;
-    }
-
-    .source-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 5px;
-    }
-
-    .source-type {
-      font-size: 10px;
-      color: var(--cyan);
-      text-transform: uppercase;
-      letter-spacing: .7px;
-    }
-
-    .source-card h3 {
-      font-size: 13px;
-      line-height: 1.35;
-      margin: 0 0 6px;
-    }
-
-    .source-card h3 a {
-      color: #f6f8fb;
-      text-decoration: none;
-    }
-
-    .source-card h3 a:hover {
-      color: #ffafb1;
-    }
-
-    .source-card p {
-      font-size: 12px;
-      line-height: 1.5;
-      color: #9aabc0;
-      margin: 0 0 8px;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .source-card footer {
-      font-size: 10px;
-      color: #70849d;
-      display: block;
-      padding: 0;
-      text-align: left;
-    }
-
-    .integrity-note {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      color: #9aacbf;
-      font-size: 12px;
-      line-height: 1.5;
-      padding: 14px 4px;
-    }
-
-    .integrity-note span {
-      color: var(--green);
-      font-size: 18px;
-    }
-
-    .integrity-note p {
-      margin: 0;
-    }
-
-    .dialog {
-      border: 0;
-      padding: 0;
-      background: rgba(0, 0, 0, .65);
-      width: 100%;
-      height: 100%;
-      max-width: none;
-      max-height: none;
-    }
-
-    .dialog::backdrop {
-      background: rgba(0, 0, 0, .65);
-      backdrop-filter: blur(4px);
-    }
-
-    .dialog-card {
-      width: min(480px, calc(100% - 28px));
-      background: #101722;
-      border: 1px solid #3a4a60;
-      border-radius: 18px;
-      padding: 22px;
-      color: var(--text);
-      box-shadow: var(--shadow);
-      margin: auto;
-    }
-
-    .dialog-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 17px;
-    }
-
-    .dialog-header h2 {
-      margin: 0;
-      font-size: 21px;
-    }
-
-    .dialog-copy {
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.6;
-      margin-bottom: 18px;
-    }
-
-    .dialog-card label {
-      display: block;
-      color: #c7d3e1;
-      font-size: 12px;
-      margin: 13px 0 6px;
-    }
-
-    .dialog-card input {
-      width: 100%;
-    }
-
-    .dialog-actions {
-      justify-content: flex-end;
-      margin-top: 22px;
-    }
-
-    .danger-button {
-      color: #ff9da2;
-      border-color: #6a3942;
-      margin-top: 15px;
-    }
-
-    .history-list {
-      display: grid;
-      gap: 7px;
-      max-height: 340px;
-      overflow: auto;
-    }
-
-    .history-item {
-      background: #151f2d;
-      border: 1px solid var(--line);
-      color: #dce5ef;
-      text-align: left;
-      border-radius: 8px;
-      padding: 10px;
-      font-size: 12px;
-    }
-
-    .site-footer {
-      text-align: center;
-      color: #63758c;
-      font-size: 11px;
-      padding: 38px 20px 25px;
-    }
-
-    @media (max-width: 800px) {
-      .shell {
-        padding: 35px 16px;
-      }
-
-      .brand-row {
-        padding: 0 16px;
-      }
-
-      .hero h1 {
-        letter-spacing: -1.5px;
-      }
-
-      .results-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .sources-panel {
-        order: 2;
-      }
-
-      .source-list {
-        max-height: none;
-      }
-
-      .control-group {
-        width: 100%;
-        justify-content: space-between;
-      }
-
-      .control-group select {
-        flex: 1;
-      }
-
-      .search-controls {
-        align-items: stretch;
-      }
-
-      .primary-button {
-        width: 100%;
-        justify-content: center;
-      }
-
-      .trust-row {
-        margin-bottom: 35px;
-      }
-
-      .suggestion-row {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .suggestion {
-        width: 100%;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *,
-      *:before,
-      *:after {
-        scroll-behavior: auto !important;
-        animation: none !important;
-        transition: none !important;
-      }
-    }
-  </style>
-</head>
-
-<body>
-  <a class="skip-link" href="#main">Skip to content</a>
-
-  <header class="site-header">
-    <div class="brand-row">
-      <a class="brand" href="./" aria-label="OMNI Research home">
-        <span class="brand-mark">O</span>
-        <span>OMNI</span>
-        <small>RESEARCH</small>
-      </a>
-
-      <div class="header-actions">
-        <button class="ghost-button" id="historyButton" type="button">
-          History
-        </button>
-
-        <button
-          class="icon-button"
-          id="settingsButton"
-          type="button"
-          aria-label="Open settings"
-        >
-          ⚙
-        </button>
+CONVERSATIONAL SOURCE-GROUNDED RESEARCH
+
+  <h1>Research at the speed of thought.</h1>
+
+  <p>
+    Ask follow-up questions, keep research context, retrieve sources,
+    and receive evidence-linked answers instead of unsupported claims.
+  </p>
+
+  <form id="searchForm" class="search-box" role="search">
+    <label class="sr-only" for="query">Research question</label>
+
+    <textarea
+      id="query"
+      maxlength="800"
+      rows="2"
+      placeholder="Ask a research question or follow up on the current answer…"
+      required
+    ></textarea>
+
+    <div class="controls">
+      <div class="control">
+        <label for="mode">Mode</label>
+
+        <select id="mode">
+          <option value="research">Research brief</option>
+          <option value="compare">Compare viewpoints</option>
+          <option value="explain">Explain clearly</option>
+          <option value="academic">Academic evidence</option>
+          <option value="creative">Draft from evidence</option>
+        </select>
       </div>
+
+      <div class="control">
+        <label for="year">Date</label>
+
+        <select id="year">
+          <option value="any">Any time</option>
+          <option value="2026">2026–present</option>
+          <option value="2024">2024–present</option>
+          <option value="2020">2020–present</option>
+        </select>
+      </div>
+
+      <button id="voiceButton" class="ghost" type="button">
+        🎙 Voice
+      </button>
+
+      <button id="cameraButton" class="ghost" type="button">
+        📷 Camera
+      </button>
+
+      <button id="searchButton" class="primary" type="submit">
+        <span>Search OMNI</span>
+        <kbd>⌘ ↵</kbd>
+      </button>
     </div>
-  </header>
+  </form>
 
-  <main id="main" class="shell">
-    <section class="hero" aria-labelledby="hero-title">
-      <p class="eyebrow">SOURCE-GROUNDED ANSWERS</p>
+  <div class="chips">
+    <span>✓ Multi-turn context</span>
+    <span>✓ Live source retrieval</span>
+    <span>✓ Streaming Claude answers</span>
+    <span>✓ Citation preservation</span>
+  </div>
+</section>
 
-      <h1 id="hero-title">
-        Research at the speed of thought.
-      </h1>
+<section class="workspace" aria-label="Research workspace">
+  <div class="workspace-bar">
+    <div class="tabs" role="tablist" aria-label="Source scope">
+      <button class="tab active" data-scope="all" role="tab">
+        All sources
+      </button>
 
-      <p class="hero-copy">
-        Search across live web, scholarly indexes, and open knowledge.
-        OMNI separates evidence from synthesis and shows you exactly where
-        claims came from.
-      </p>
+      <button class="tab" data-scope="web" role="tab">
+        Web
+      </button>
 
-      <form id="searchForm" class="search-form" role="search">
-        <label class="sr-only" for="query">
-          Research question
-        </label>
+      <button class="tab" data-scope="academic" role="tab">
+        Academic
+      </button>
 
-        <textarea
-          id="query"
-          rows="2"
-          maxlength="600"
-          placeholder="Ask a research question… e.g. What are the latest evidence-based approaches to battery recycling?"
-          required
-        ></textarea>
+      <button class="tab" data-scope="knowledge" role="tab">
+        Knowledge
+      </button>
+    </div>
 
-        <div class="search-controls">
-          <div class="control-group">
-            <label for="mode">Answer mode</label>
+    <div class="toolbar">
+      <label class="switch-label">
+        <input id="deepSearch" type="checkbox">
+        <span class="switch"></span>
+        Deep search
+      </label>
 
-            <select id="mode">
-              <option value="research">Research brief</option>
-              <option value="compare">Compare viewpoints</option>
-              <option value="explain">Explain clearly</option>
-              <option value="academic">Academic evidence</option>
-              <option value="creative">Draft from evidence</option>
-            </select>
+      <button id="openverseButton" class="ghost" type="button">
+        Openverse
+      </button>
+
+      <button id="exportButton" class="ghost" type="button" disabled>
+        Export
+      </button>
+    </div>
+  </div>
+
+  <div id="emptyState" class="empty">
+    <div class="empty-orbit">✦</div>
+
+    <h2>Ask anything worth understanding.</h2>
+
+    <p>
+      Ask a first question, then continue with follow-ups such as
+      “What are the limitations?” or “Compare those studies.”
+    </p>
+
+    <div class="suggestions">
+      <button class="suggestion" type="button">
+        What is the evidence for…
+      </button>
+
+      <button class="suggestion" type="button">
+        Compare the benefits and risks of…
+      </button>
+
+      <button class="suggestion" type="button">
+        Find recent academic research on…
+      </button>
+    </div>
+  </div>
+
+  <div id="loadingState" class="loading" hidden aria-live="polite">
+    <div class="loader"></div>
+
+    <div>
+      <strong id="loadingTitle">Building your evidence map</strong>
+      <p id="loadingDetail">Searching trusted indexes…</p>
+    </div>
+  </div>
+
+  <div id="conversation" class="conversation"></div>
+
+  <div id="results" hidden>
+    <div class="results">
+      <article class="panel">
+        <div class="heading">
+          <div>
+            <p class="eyebrow">OMNI SYNTHESIS</p>
+            <h2 id="answerTitle">Answer</h2>
           </div>
 
-          <div class="control-group">
-            <label for="year">Date window</label>
-
-            <select id="year">
-              <option value="any">Any time</option>
-              <option value="2026">2026–present</option>
-              <option value="2024">2024–present</option>
-              <option value="2020">2020–present</option>
-            </select>
-          </div>
-
-          <button class="primary-button" id="searchButton" type="submit">
-            <span>Search OMNI</span>
-            <kbd>⌘ ↵</kbd>
-          </button>
+          <span id="confidence" class="badge">
+            Awaiting evidence
+          </span>
         </div>
-      </form>
 
-      <div class="trust-row" aria-label="Search capabilities">
-        <span>✓ Multi-source retrieval</span>
-        <span>✓ Claim-level citations</span>
-        <span>✓ No invented references</span>
-      </div>
-    </section>
+        <div id="answer" class="answer"></div>
+        <div id="meta" class="meta"></div>
+      </article>
 
-    <section class="workspace" aria-label="Research workspace">
-      <div class="workspace-toolbar">
-        <div class="source-tabs" role="tablist" aria-label="Source scope">
-          <button
-            class="source-tab active"
-            data-scope="all"
-            role="tab"
-            aria-selected="true"
-          >
-            All sources
-          </button>
+      <aside class="panel">
+        <div class="heading">
+          <div>
+            <p class="eyebrow">EVIDENCE MAP</p>
+            <h2>Sources</h2>
+          </div>
 
-          <button
-            class="source-tab"
-            data-scope="web"
-            role="tab"
-            aria-selected="false"
-          >
-            Web
-          </button>
+          <span id="sourceCount" class="badge">0</span>
+        </div>
 
-          <button
-            class="source-tab"
-            data-scope="academic"
-            role="tab"
-            aria-selected="false"
-          >
+        <div class="filters">
+          <button class="filter active" data-filter="all">All</button>
+          <button class="filter" data-filter="academic">
             Academic
           </button>
-
-          <button
-            class="source-tab"
-            data-scope="knowledge"
-            role="tab"
-            aria-selected="false"
-          >
+          <button class="filter" data-filter="web">Web</button>
+          <button class="filter" data-filter="knowledge">
             Knowledge
           </button>
         </div>
 
-        <div class="toolbar-actions">
-          <label class="switch-label">
-            <input id="deepSearch" type="checkbox">
-            <span class="switch"></span>
-            Deep search
-          </label>
+        <div id="sources" class="sources"></div>
+      </aside>
+    </div>
 
-          <button id="exportButton" class="ghost-button" type="button" disabled>
-            Export
-          </button>
-        </div>
-      </div>
+    <div class="note">
+      <span>◈</span>
 
-      <div id="emptyState" class="empty-state">
-        <div class="empty-orbit" aria-hidden="true">✦</div>
-
-        <h2>Ask anything worth understanding.</h2>
-
-        <p>
-          Try a question with a time range, population, location, or comparison
-          criterion for a sharper result.
-        </p>
-
-        <div class="suggestion-row">
-          <button class="suggestion" type="button">
-            What is the evidence for…
-          </button>
-
-          <button class="suggestion" type="button">
-            Compare the benefits and risks of…
-          </button>
-
-          <button class="suggestion" type="button">
-            Find recent academic research on…
-          </button>
-        </div>
-      </div>
-
-      <div id="loadingState" class="loading-state" hidden aria-live="polite">
-        <div class="loader"></div>
-
-        <div>
-          <strong id="loadingTitle">
-            Building your evidence map
-          </strong>
-
-          <p id="loadingDetail">
-            Searching trusted indexes…
-          </p>
-        </div>
-      </div>
-
-      <div id="results" hidden>
-        <div class="results-grid">
-          <article class="answer-panel" aria-labelledby="answerTitle">
-            <div class="panel-heading">
-              <div>
-                <p class="eyebrow">OMNI SYNTHESIS</p>
-                <h2 id="answerTitle">Answer</h2>
-              </div>
-
-              <span id="answerConfidence" class="confidence">
-                Awaiting evidence
-              </span>
-            </div>
-
-            <div id="answerContent" class="answer-content"></div>
-
-            <div id="answerMeta" class="answer-meta"></div>
-          </article>
-
-          <aside class="sources-panel" aria-labelledby="sourcesTitle">
-            <div class="panel-heading">
-              <div>
-                <p class="eyebrow">EVIDENCE MAP</p>
-                <h2 id="sourcesTitle">Sources</h2>
-              </div>
-
-              <span id="sourceCount" class="source-count">0</span>
-            </div>
-
-            <div id="sourceFilters" class="filter-row">
-              <button data-filter="all" class="filter active">
-                All
-              </button>
-
-              <button data-filter="academic" class="filter">
-                Academic
-              </button>
-
-              <button data-filter="web" class="filter">
-                Web
-              </button>
-            </div>
-
-            <div id="sourceList" class="source-list"></div>
-          </aside>
-        </div>
-
-        <div class="integrity-note">
-          <span>◈</span>
-
-          <p>
-            <strong>Evidence policy:</strong>
-            OMNI only uses citations returned by retrieval. Open each source
-            before relying on high-stakes claims; search results can be
-            incomplete or outdated.
-          </p>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <dialog id="settingsDialog" class="dialog">
-    <form method="dialog" class="dialog-card" id="settingsForm">
-      <div class="dialog-header">
-        <div>
-          <p class="eyebrow">CONFIGURATION</p>
-          <h2>Research connection</h2>
-        </div>
-
-        <button
-          class="icon-button"
-          value="cancel"
-          aria-label="Close settings"
-        >
-          ×
-        </button>
-      </div>
-
-      <p class="dialog-copy">
-        Point OMNI at your deployed Worker. Leave blank to use the built-in
-        public-source fallback for basic retrieval.
+      <p>
+        <strong>Evidence policy:</strong>
+        OMNI only cites retrieved sources. Open original pages before
+        relying on high-stakes information.
       </p>
+    </div>
+  </div>
 
-      <label for="apiUrl">Worker API URL</label>
-
-      <input
-        id="apiUrl"
-        type="url"
-        placeholder="https://your-worker.workers.dev"
-      >
-
-      <label for="maxSources">Maximum sources</label>
-
-      <input
-        id="maxSources"
-        type="number"
-        min="4"
-        max="30"
-        value="12"
-      >
-
-      <div class="dialog-actions">
-        <button class="ghost-button" value="cancel">
-          Cancel
-        </button>
-
-        <button class="primary-button" id="saveSettings" value="default">
-          Save
-        </button>
-      </div>
-    </form>
-  </dialog>
-
-  <dialog id="historyDialog" class="dialog">
-    <div class="dialog-card">
-      <div class="dialog-header">
-        <div>
-          <p class="eyebrow">LOCAL HISTORY</p>
-          <h2>Recent questions</h2>
-        </div>
-
-        <button
-          class="icon-button"
-          id="closeHistory"
-          aria-label="Close history"
-        >
-          ×
-        </button>
+  <section id="assets" class="assets" hidden>
+    <div class="heading">
+      <div>
+        <p class="eyebrow">OPEN LICENSED MEDIA</p>
+        <h2>Creative Commons images</h2>
       </div>
 
-      <div id="historyList" class="history-list"></div>
-
-      <button id="clearHistory" class="danger-button" type="button">
-        Clear history
+      <button id="assetSearchButton" class="ghost" type="button">
+        Search Openverse
       </button>
     </div>
-  </dialog>
 
-  <footer class="site-footer">
-    OMNI Research · transparent retrieval · human verification recommended
-  </footer>
-
-  <script>
-    const $ = (selector) => document.querySelector(selector);
-
-    const state = {
-      apiUrl: localStorage.getItem("omni_api_url") || "",
-      maxSources: Number(localStorage.getItem("omni_max_sources") || 12),
-      scope: "all",
-      sourceFilter: "all",
-      lastResult: null,
-      history: JSON.parse(localStorage.getItem("omni_history") || "[]")
-    };
-
-    const els = {
-      form: $("#searchForm"),
-      query: $("#query"),
-      mode: $("#mode"),
-      year: $("#year"),
-      deep: $("#deepSearch"),
-      searchButton: $("#searchButton"),
-      empty: $("#emptyState"),
-      loading: $("#loadingState"),
-      loadingTitle: $("#loadingTitle"),
-      loadingDetail: $("#loadingDetail"),
-      results: $("#results"),
-      answer: $("#answerContent"),
-      answerTitle: $("#answerTitle"),
-      confidence: $("#answerConfidence"),
-      meta: $("#answerMeta"),
-      sourceList: $("#sourceList"),
-      sourceCount: $("#sourceCount"),
-      export: $("#exportButton"),
-      settings: $("#settingsDialog"),
-      history: $("#historyDialog"),
-      apiUrl: $("#apiUrl"),
-      maxSources: $("#maxSources"),
-      historyList: $("#historyList")
-    };
-
-    function escapeHTML(value = "") {
-      return String(value).replace(
-        /[&<>"']/g,
-        (character) => ({
-          "&": "&amp;",
-          "<": "&lt;",
-          ">": "&gt;",
-          '"': "&quot;",
-          "'": "&#039;"
-        }[character])
-      );
-    }
-
-    function domain(url = "") {
-      try {
-        return new URL(url).hostname.replace(/^www\./, "");
-      } catch {
-        return "source";
-      }
-    }
-
-    function formatDate(value) {
-      if (!value) {
-        return "";
-      }
-
-      const date = new Date(value);
-
-      if (Number.isNaN(date.getTime())) {
-        return String(value).slice(0, 10);
-      }
-
-      return date.toLocaleDateString(undefined, {
-        year: "numeric",
-        month: "short",
-        day: "numeric"
-      });
-    }
-
-    function setLoading(title, detail) {
-      els.loadingTitle.textContent = title;
-      els.loadingDetail.textContent = detail;
-    }
-
-    function setBusy(busy) {
-      els.searchButton.disabled = busy;
-
-      els.searchButton.querySelector("span").textContent = busy
-        ? "Working…"
-        : "Search OMNI";
-    }
-
-    function currentYear() {
-      const value = els.year.value;
-      return value === "any" ? undefined : Number(value);
-    }
-
-    function renderSafeMarkdown(text = "") {
-      const lines = String(text).split(/\n+/);
-      let html = "";
-      let list = false;
-
-      for (const raw of lines) {
-        const line = raw.trim();
-
-        if (!line) {
-          if (list) {
-            html += "</ul>";
-            list = false;
-          }
-
-          continue;
-        }
-
-        if (/^#{1,3}\s/.test(line)) {
-          if (list) {
-            html += "</ul>";
-            list = false;
-          }
-
-          html += `
-            <h3>
-              ${escapeHTML(line.replace(/^#{1,3}\s/, ""))}
-            </h3>
-          `;
-
-          continue;
-        }
-
-        if (/^[-*]\s/.test(line)) {
-          if (!list) {
-            html += "<ul>";
-            list = true;
-          }
-
-          html += `
-            <li>
-              ${formatInline(line.replace(/^[-*]\s/, ""))}
-            </li>
-          `;
-
-          continue;
-        }
-
-        if (list) {
-          html += "</ul>";
-          list = false;
-        }
-
-        html += `<p>${formatInline(line)}</p>`;
-      }
-
-      if (list) {
-        html += "</ul>";
-      }
-
-      return html ||
-        "<p>No synthesis was returned. Review the source cards below.</p>";
-    }
-
-    function formatInline(text) {
-      let safe = escapeHTML(text);
-
-      safe = safe.replace(
-        /\[(\d+)\]/g,
-        '<a class="citation" href="#source-$1" title="Open source $1">[$1]</a>'
-      );
-
-      safe = safe.replace(
-        /\*\*(.+?)\*\*/g,
-        "<strong>$1</strong>"
-      );
-
-      return safe;
-    }
-
-    async function request(path, body) {
-      const base = state.apiUrl.replace(/\/$/, "");
-
-      if (!base) {
-        throw new Error("No Worker URL configured");
-      }
-
-      const response = await fetch(`${base}${path}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(body)
-      });
-
-      const payload = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(
-          payload.error || `Request failed (${response.status})`
-        );
-      }
-
-      return payload;
-    }
-
-    async function fallbackSearch(query, deep) {
-      const limit = deep ? 8 : 4;
-      const results = [];
-
-      const wikipediaTask = fetch(
-        `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(
-          query
-        )}&limit=${limit}&namespace=0&format=json&origin=*`
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          (data<sup>1</sup> || []).forEach((title, index) => {
-            results.push({
-              title,
-              snippet: data<sup>2</sup>?.[index] || "",
-              url: data<sup>3</sup>?.[index] || "",
-              source: "Wikipedia",
-              type: "knowledge"
-            });
-          });
-        });
-
-      const openAlexTask = fetch(
-        `https://api.openalex.org/works?search=${encodeURIComponent(
-          query
-        )}&per-page=${limit}&sort=relevance_score:desc`
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          (data.results || []).forEach((item) => {
-            results.push({
-              title: item.title || "Untitled work",
-              snippet: item.abstract_inverted_index
-                ? Object.keys(item.abstract_inverted_index)
-                    .slice(0, 45)
-                    .join(" ")
-                : `${
-                    item.primary_location?.source?.display_name ||
-                    "OpenAlex work"
-                  } · cited by ${item.cited_by_count || 0}`,
-              url:
-                item.doi ||
-                item.primary_location?.landing_page_url ||
-                `https://openalex.org/${
-                  item.id?.split("/").pop() || ""
-                }`,
-              source: "OpenAlex",
-              type: "academic",
-              published: item.publication_date,
-              authors: (item.authorships || [])
-                .slice(0, 3)
-                .map((author) => author.author?.display_name)
-                .filter(Boolean)
-                .join(", ")
-            });
-          });
-        });
-
-      await Promise.allSettled([
-        wikipediaTask,
-        openAlexTask
-      ]);
-
-      return normalizeResults(results).slice(0, state.maxSources);
-    }
-
-    function normalizeResults(results) {
-      const seen = new Set();
-
-      return results
-        .filter((item) => {
-          if (!item.url || seen.has(item.url)) {
-            return false;
-          }
-
-          seen.add(item.url);
-          return true;
-        })
-        .map((item, index) => ({
-          ...item,
-          id: index + 1,
-          domain: item.domain || domain(item.url)
-        }));
-    }
-
-    async function performSearch(query) {
-      const body = {
-        query,
-        deep: els.deep.checked,
-        yearFrom: currentYear(),
-        scope: state.scope,
-        limit: state.maxSources
-      };
-
-      try {
-        const data = await request("/api/search", body);
-
-        return {
-          sources: normalizeResults(data.sources || []),
-          provider: data.provider || "OMNI"
-        };
-      } catch (error) {
-        console.warn(error);
-
-        setLoading(
-          "Using public-source fallback",
-          "The configured Worker was unavailable; retrieving open indexes directly…"
-        );
-
-        return {
-          sources: await fallbackSearch(query, els.deep.checked),
-          provider: "Public-source fallback"
-        };
-      }
-    }
-
-    async function makeAnswer(query, sources) {
-      try {
-        const data = await request("/api/answer", {
-          query,
-          mode: els.mode.value,
-          sources
-        });
-
-        return data;
-      } catch (error) {
-        console.warn(error);
-
-        return {
-          answer: localSynthesis(query, sources),
-          confidence: "Source list available",
-          model: "Local citation-preserving fallback"
-        };
-      }
-    }
-
-    function localSynthesis(query, sources) {
-      if (!sources.length) {
-        return `
-## No sources found
-
-I could not retrieve sources for **${query}**.
-Try broader keywords or configure the Worker API.
-        `.trim();
-      }
-
-      return `
-## Evidence found for your question
-
-OMNI retrieved ${sources.length} sources related to **${query}**.
-The local fallback does not infer conclusions; review the evidence cards
-and open the original sources before making decisions.
-
-${sources
-  .slice(0, 5)
-  .map(
-    (source, index) =>
-      `- ${source.title} — ${
-        source.snippet || "Open the source for details."
-      } [${index + 1}]`
-  )
-  .join("\n")}
-      `.trim();
-    }
-
-    function renderSources(sources) {
-      const filtered = sources.filter(
-        (source) =>
-          state.sourceFilter === "all" ||
-          source.type === state.sourceFilter
-      );
-
-      els.sourceCount.textContent = String(sources.length);
-      els.sourceList.innerHTML = "";
-
-      if (!filtered.length) {
-        els.sourceList.innerHTML =
-          '<p class="dialog-copy">No sources match this filter.</p>';
-
-        return;
-      }
-
-      const fragment = document.createDocumentFragment();
-
-      filtered.forEach((source) => {
-        const card = document.createElement("article");
-
-        card.className = "source-card";
-        card.id = `source-${source.id}`;
-        card.dataset.type = source.type || "web";
-
-        card.innerHTML = `
-          <div class="source-top">
-            <span class="source-type">
-              ${escapeHTML(source.type || "web")}
-            </span>
-
-            <span class="source-type">
-              [${source.id}]
-            </span>
-          </div>
-
-          <h3>
-            <a
-              href="${escapeHTML(source.url)}"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              ${escapeHTML(source.title || "Untitled source")}
-            </a>
-          </h3>
-
-          <p>
-            ${escapeHTML(
-              source.snippet || "No excerpt available. Open the original source."
-            )}
-          </p>
-
-          <footer>
-            ${escapeHTML(source.source || domain(source.url))}
-            ${
-              source.published
-                ? " · " + escapeHTML(formatDate(source.published))
-                : ""
-            }
-            ${
-              source.authors
-                ? " · " + escapeHTML(source.authors)
-                : ""
-            }
-          </footer>
-        `;
-
-        fragment.appendChild(card);
-      });
-
-      els.sourceList.appendChild(fragment);
-    }
-
-    function saveHistory(query) {
-      state.history = [
-        query,
-        ...state.history.filter((item) => item !== query)
-      ].slice(0, 12);
-
-      localStorage.setItem(
-        "omni_history",
-        JSON.stringify(state.history)
-      );
-    }
-
-    function renderHistory() {
-      els.historyList.innerHTML = "";
-
-      if (!state.history.length) {
-        els.historyList.innerHTML =
-          '<p class="dialog-copy">No saved questions yet.</p>';
-
-        return;
-      }
-
-      state.history.forEach((query) => {
-        const button = document.createElement("button");
-
-        button.className = "history-item";
-        button.type = "button";
-        button.textContent = query;
-
-        button.onclick = () => {
-          els.query.value = query;
-          els.history.close();
-          els.form.requestSubmit();
-        };
-
-        els.historyList.appendChild(button);
-      });
-    }
-
-    function downloadResult() {
-      if (!state.lastResult) {
-        return;
-      }
-
-      const blob = new Blob(
-        [JSON.stringify(state.lastResult, null, 2)],
-        { type: "application/json" }
-      );
-
-      const link = document.createElement("a");
-
-      link.href = URL.createObjectURL(blob);
-      link.download = "omni-research-result.json";
-      link.click();
-
-      URL.revokeObjectURL(link.href);
-    }
-
-    async function run(query) {
-      setBusy(true);
-
-      els.empty.hidden = true;
-      els.results.hidden = true;
-      els.loading.hidden = false;
-
-      setLoading(
-        "Building your evidence map",
-        "Searching web, academic, and knowledge indexes…"
-      );
-
-      try {
-        const retrieved = await performSearch(query);
-
-        setLoading(
-          "Checking source diversity",
-          `${retrieved.sources.length} sources retrieved from ${retrieved.provider}. Generating a cited synthesis…`
-        );
-
-        const result = await makeAnswer(
-          query,
-          retrieved.sources
-        );
-
-        state.lastResult = {
-          query,
-          ...result,
-          sources: retrieved.sources,
-          provider: retrieved.provider,
-          createdAt: new Date().toISOString()
-        };
-
-        els.answerTitle.textContent =
-          els.mode.options[els.mode.selectedIndex].text;
-
-        els.answer.innerHTML = renderSafeMarkdown(
-          result.answer || ""
-        );
-
-        els.confidence.textContent =
-          result.confidence || "Evidence-linked";
-
-        els.meta.textContent =
-          `${retrieved.sources.length} sources · ` +
-          `${retrieved.provider} · ` +
-          `${result.model || "OMNI"} · ` +
-          `${new Date().toLocaleString()}`;
-
-        renderSources(retrieved.sources);
-
-        els.loading.hidden = true;
-        els.results.hidden = false;
-        els.export.disabled = false;
-
-        saveHistory(query);
-
-        window.scrollTo({
-          top: document.querySelector(".workspace").offsetTop - 20,
-          behavior: "smooth"
-        });
-      } catch (error) {
-        els.loading.hidden = true;
-        els.empty.hidden = false;
-
-        alert(
-          `OMNI could not complete the search: ${error.message}`
-        );
-      } finally {
-        setBusy(false);
-      }
-    }
-
-    els.form.addEventListener("submit", (event) => {
-      event.preventDefault();
-
-      const query = els.query.value.trim();
-
-      if (query) {
-        run(query);
-      }
-    });
-
-    els.query.addEventListener("keydown", (event) => {
-      if (
-        (event.metaKey || event.ctrlKey) &&
-        event.key === "Enter"
-      ) {
-        event.preventDefault();
-        els.form.requestSubmit();
-      }
-    });
-
-    document.querySelectorAll(".source-tab").forEach((button) => {
-      button.addEventListener("click", () => {
-        document.querySelectorAll(".source-tab").forEach((item) => {
-          item.classList.remove("active");
-          item.setAttribute("aria-selected", "false");
-        });
-
-        button.classList.add("active");
-        button.setAttribute("aria-selected", "true");
-
-        state.scope = button.dataset.scope;
-      });
-    });
-
-    document.querySelectorAll(".filter").forEach((button) => {
-      button.addEventListener("click", () => {
-        document.querySelectorAll(".filter").forEach((item) => {
-          item.classList.remove("active");
-        });
-
-        button.classList.add("active");
-        state.sourceFilter = button.dataset.filter;
-
-        if (state.lastResult) {
-          renderSources(state.lastResult.sources);
-        }
-      });
-    });
-
-    document.querySelectorAll(".suggestion").forEach((button) => {
-      button.addEventListener("click", () => {
-        els.query.value = button.textContent.replace("…", " ");
-        els.query.focus();
-      });
-    });
-
-    $("#settingsButton").addEventListener("click", () => {
-      els.apiUrl.value = state.apiUrl;
-      els.maxSources.value = state.maxSources;
-      els.settings.showModal();
-    });
-
-    $("#settingsForm").addEventListener("submit", (event) => {
-      if (event.submitter?.id !== "saveSettings") {
-        return;
-      }
-
-      state.apiUrl = els.apiUrl.value.trim().replace(/\/$/, "");
-
-      state.maxSources = Math.min(
-        30,
-        Math.max(4, Number(els.maxSources.value) || 12)
-      );
-
-      localStorage.setItem("omni_api_url", state.apiUrl);
-      localStorage.setItem(
-        "omni_max_sources",
-        String(state.maxSources)
-      );
-    });
-
-    $("#historyButton").addEventListener("click", () => {
-      renderHistory();
-      els.history.showModal();
-    });
-
-    $("#closeHistory").addEventListener("click", () => {
+    <p class="asset-help">
+      Check the individual license and attribution requirements before
+      publishing or redistributing an image.
+    </p>
+
+    <div id="assetGrid" class="asset-grid"></div>
+  </section>
+</section>
