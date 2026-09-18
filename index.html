@@ -1,214 +1,501 @@
-CONVERSATIONAL SOURCE-GROUNDED RESEARCH
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>OMNI</title>
+<style>
+  :root {
+    --red: #e10600;
+    --red-dark: #c00500;
+    --white: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--red);
+    color: white;
+    height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
 
-  <h1>Research at the speed of thought.</h1>
+  /* HOME */
+  #homeScreen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 20px;
+    padding-top: env(safe-area-inset-top);
+  }
+  .logo {
+    font-size: 2.9rem;
+    font-weight: 700;
+    letter-spacing: 5px;
+    margin-top: 11vh;
+    margin-bottom: 2.4rem;
+  }
+  .search-wrap {
+    width: 100%;
+    max-width: 420px;
+    position: relative;
+  }
+  #searchInput {
+    width: 100%;
+    padding: 16px 20px 16px 50px;
+    font-size: 1.05rem;
+    border: none;
+    border-radius: 50px;
+    background: white;
+    color: #111;
+    outline: none;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.22);
+  }
+  .search-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.25rem;
+    color: #888;
+  }
+  #resultsArea {
+    flex: 1;
+    width: 100%;
+    max-width: 480px;
+    overflow-y: auto;
+    margin-top: 1.5rem;
+    padding-bottom: 110px;
+    display: none;
+  }
+  .card {
+    background: rgba(255,255,255,0.13);
+    backdrop-filter: blur(10px);
+    border-radius: 18px;
+    padding: 1.15rem;
+    margin-bottom: 1rem;
+  }
+  .card h3 { font-size: 1.05rem; margin-bottom: 0.45rem; }
+  .card p { font-size: 0.93rem; line-height: 1.55; opacity: 0.95; }
+  .card a { color: #ffd6d6; text-decoration: none; }
 
-  <p>
-    Ask follow-up questions, keep research context, retrieve sources,
-    and receive evidence-linked answers instead of unsupported claims.
-  </p>
+  /* EXPLORE (CAMERA) */
+  #exploreScreen {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    background: #000;
+    position: relative;
+  }
+  #cameraVideo {
+    flex: 1;
+    width: 100%;
+    object-fit: cover;
+  }
+  .camera-controls {
+    position: absolute;
+    bottom: 100px;
+    left: 0; right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 28px;
+    z-index: 10;
+  }
+  .cam-btn {
+    width: 66px;
+    height: 66px;
+    border-radius: 50%;
+    border: 4px solid white;
+    background: rgba(255,255,255,0.25);
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
 
-  <form id="searchForm" class="search-box" role="search">
-    <label class="sr-only" for="query">Research question</label>
+  /* SAVED */
+  #savedScreen {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    padding: 20px;
+    padding-top: calc(20px + env(safe-area-inset-top));
+    overflow-y: auto;
+    padding-bottom: 110px;
+  }
+  #savedScreen h2 { margin-bottom: 1.3rem; font-size: 1.6rem; }
+  .saved-item {
+    background: rgba(255,255,255,0.13);
+    border-radius: 14px;
+    padding: 1rem;
+    margin-bottom: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  .saved-item a { color: white; font-size: 1.4rem; text-decoration: none; }
 
-    <textarea
-      id="query"
-      maxlength="800"
-      rows="2"
-      placeholder="Ask a research question or follow up on the current answer…"
-      required
-    ></textarea>
+  /* PROFILE */
+  #profileScreen {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    padding: 20px;
+    padding-top: calc(20px + env(safe-area-inset-top));
+  }
+  #profileScreen h2 { margin-bottom: 1.5rem; font-size: 1.6rem; }
+  .profile-card {
+    background: rgba(255,255,255,0.13);
+    border-radius: 16px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .profile-card label { font-size: 0.9rem; opacity: 0.9; }
+  .profile-card input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    margin-top: 8px;
+    font-size: 1rem;
+  }
+  .btn {
+    background: white;
+    color: var(--red);
+    border: none;
+    padding: 13px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    width: 100%;
+    margin-top: 12px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
 
-    <div class="controls">
-      <div class="control">
-        <label for="mode">Mode</label>
+  /* BOTTOM NAV */
+  nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 72px;
+    background: var(--red);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding-bottom: env(safe-area-inset-bottom);
+    border-top: 1px solid rgba(255,255,255,0.15);
+    z-index: 50;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    color: rgba(255,255,255,0.55);
+    font-size: 0.72rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  .nav-item.active { color: white; }
+  .nav-item span { font-size: 1.45rem; }
 
-        <select id="mode">
-          <option value="research">Research brief</option>
-          <option value="compare">Compare viewpoints</option>
-          <option value="explain">Explain clearly</option>
-          <option value="academic">Academic evidence</option>
-          <option value="creative">Draft from evidence</option>
-        </select>
-      </div>
+  .loading { text-align: center; padding: 2rem; opacity: 0.85; }
+</style>
+</head>
+<body>
 
-      <div class="control">
-        <label for="year">Date</label>
-
-        <select id="year">
-          <option value="any">Any time</option>
-          <option value="2026">2026–present</option>
-          <option value="2024">2024–present</option>
-          <option value="2020">2020–present</option>
-        </select>
-      </div>
-
-      <button id="voiceButton" class="ghost" type="button">
-        🎙 Voice
-      </button>
-
-      <button id="cameraButton" class="ghost" type="button">
-        📷 Camera
-      </button>
-
-      <button id="searchButton" class="primary" type="submit">
-        <span>Search OMNI</span>
-        <kbd>⌘ ↵</kbd>
-      </button>
-    </div>
-  </form>
-
-  <div class="chips">
-    <span>✓ Multi-turn context</span>
-    <span>✓ Live source retrieval</span>
-    <span>✓ Streaming Claude answers</span>
-    <span>✓ Citation preservation</span>
+<!-- HOME -->
+<div id="homeScreen">
+  <div class="logo">OMNI</div>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input id="searchInput" type="text" placeholder="Search anything on Omni..." autocomplete="off" />
   </div>
-</section>
+  <div id="resultsArea"></div>
+</div>
 
-<section class="workspace" aria-label="Research workspace">
-  <div class="workspace-bar">
-    <div class="tabs" role="tablist" aria-label="Source scope">
-      <button class="tab active" data-scope="all" role="tab">
-        All sources
-      </button>
-
-      <button class="tab" data-scope="web" role="tab">
-        Web
-      </button>
-
-      <button class="tab" data-scope="academic" role="tab">
-        Academic
-      </button>
-
-      <button class="tab" data-scope="knowledge" role="tab">
-        Knowledge
-      </button>
-    </div>
-
-    <div class="toolbar">
-      <label class="switch-label">
-        <input id="deepSearch" type="checkbox">
-        <span class="switch"></span>
-        Deep search
-      </label>
-
-      <button id="openverseButton" class="ghost" type="button">
-        Openverse
-      </button>
-
-      <button id="exportButton" class="ghost" type="button" disabled>
-        Export
-      </button>
-    </div>
+<!-- EXPLORE (CAMERA) -->
+<div id="exploreScreen">
+  <video id="cameraVideo" autoplay playsinline muted></video>
+  <div class="camera-controls">
+    <button class="cam-btn" id="switchCam">🔄</button>
+    <button class="cam-btn" id="captureBtn" style="background:white;color:#e10600;">📷</button>
   </div>
+</div>
 
-  <div id="emptyState" class="empty">
-    <div class="empty-orbit">✦</div>
+<!-- SAVED -->
+<div id="savedScreen">
+  <h2>Saved</h2>
+  <div id="savedList"></div>
+</div>
 
-    <h2>Ask anything worth understanding.</h2>
-
-    <p>
-      Ask a first question, then continue with follow-ups such as
-      “What are the limitations?” or “Compare those studies.”
+<!-- PROFILE -->
+<div id="profileScreen">
+  <h2>Profile</h2>
+  <div class="profile-card">
+    <label>Claude API Key (optional – for AI answers)</label>
+    <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
+    <button class="btn" id="saveKeyBtn">Save Key</button>
+  </div>
+  <div class="profile-card">
+    <p style="font-size:0.9rem;opacity:0.9;line-height:1.5;">
+      Your key stays only in this browser.<br>
+      Get one free at console.anthropic.com
     </p>
-
-    <div class="suggestions">
-      <button class="suggestion" type="button">
-        What is the evidence for…
-      </button>
-
-      <button class="suggestion" type="button">
-        Compare the benefits and risks of…
-      </button>
-
-      <button class="suggestion" type="button">
-        Find recent academic research on…
-      </button>
-    </div>
   </div>
+</div>
 
-  <div id="loadingState" class="loading" hidden aria-live="polite">
-    <div class="loader"></div>
+<!-- BOTTOM NAV -->
+<nav>
+  <button class="nav-item active" data-screen="home"><span>🏠</span>Home</button>
+  <button class="nav-item" data-screen="explore"><span>🧭</span>Explore</button>
+  <button class="nav-item" data-screen="saved"><span>🔖</span>Saved</button>
+  <button class="nav-item" data-screen="profile"><span>👤</span>Profile</button>
+</nav>
 
-    <div>
-      <strong id="loadingTitle">Building your evidence map</strong>
-      <p id="loadingDetail">Searching trusted indexes…</p>
-    </div>
-  </div>
+<script>
+let history = [];
+let currentStream = null;
+let facingMode = "environment";
+let downloads = JSON.parse(localStorage.getItem("omni_downloads") || "[]");
 
-  <div id="conversation" class="conversation"></div>
+const screens = {
+  home: document.getElementById("homeScreen"),
+  explore: document.getElementById("exploreScreen"),
+  saved: document.getElementById("savedScreen"),
+  profile: document.getElementById("profileScreen")
+};
+const searchInput = document.getElementById("searchInput");
+const resultsArea = document.getElementById("resultsArea");
+const apiKeyInput = document.getElementById("apiKeyInput");
+const savedList = document.getElementById("savedList");
 
-  <div id="results" hidden>
-    <div class="results">
-      <article class="panel">
-        <div class="heading">
-          <div>
-            <p class="eyebrow">OMNI SYNTHESIS</p>
-            <h2 id="answerTitle">Answer</h2>
-          </div>
+apiKeyInput.value = localStorage.getItem("omni_claude_key") || "";
 
-          <span id="confidence" class="badge">
-            Awaiting evidence
-          </span>
-        </div>
+/* NAVIGATION */
+document.querySelectorAll(".nav-item").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const target = btn.dataset.screen;
+    Object.values(screens).forEach(s => s.style.display = "none");
+    document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
 
-        <div id="answer" class="answer"></div>
-        <div id="meta" class="meta"></div>
-      </article>
+    if (target === "home") {
+      screens.home.style.display = "flex";
+    } else if (target === "explore") {
+      screens.explore.style.display = "flex";
+      startCamera();
+    } else if (target === "saved") {
+      screens.saved.style.display = "flex";
+      renderSaved();
+    } else if (target === "profile") {
+      screens.profile.style.display = "flex";
+    }
 
-      <aside class="panel">
-        <div class="heading">
-          <div>
-            <p class="eyebrow">EVIDENCE MAP</p>
-            <h2>Sources</h2>
-          </div>
+    if (target !== "explore" && currentStream) {
+      currentStream.getTracks().forEach(t => t.stop());
+      currentStream = null;
+    }
+  });
+});
 
-          <span id="sourceCount" class="badge">0</span>
-        </div>
+/* SEARCH */
+searchInput.addEventListener("keydown", e => {
+  if (e.key === "Enter") doSearch(searchInput.value.trim());
+});
 
-        <div class="filters">
-          <button class="filter active" data-filter="all">All</button>
-          <button class="filter" data-filter="academic">
-            Academic
-          </button>
-          <button class="filter" data-filter="web">Web</button>
-          <button class="filter" data-filter="knowledge">
-            Knowledge
-          </button>
-        </div>
+async function doSearch(query) {
+  if (!query) return;
+  resultsArea.style.display = "block";
+  resultsArea.innerHTML = `<div class="loading">Searching…</div>`;
+  history.push({ role: "user", content: query });
 
-        <div id="sources" class="sources"></div>
-      </aside>
-    </div>
+  try {
+    const [wiki, ddg, media] = await Promise.all([
+      fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`)
+        .then(r => r.ok ? r.json() : null).catch(() => null),
+      fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json`)
+        .then(r => r.json()).catch(() => ({})),
+      fetch(`https://api.openverse.org/v1/images/?q=${encodeURIComponent(query)}&page_size=10`)
+        .then(r => r.json()).then(d => d.results || []).catch(() => [])
+    ]);
 
-    <div class="note">
-      <span>◈</span>
+    let sources = [];
+    let context = "";
+    let idx = 1;
 
-      <p>
-        <strong>Evidence policy:</strong>
-        OMNI only cites retrieved sources. Open original pages before
-        relying on high-stakes information.
-      </p>
-    </div>
-  </div>
+    if (wiki && wiki.extract) {
+      sources.push({
+        id: idx,
+        title: wiki.title,
+        snippet: wiki.extract.slice(0, 320),
+        url: wiki.content_urls?.desktop?.page,
+        type: "knowledge"
+      });
+      context += `[${idx}] ${wiki.title}: ${wiki.extract}\n\n`;
+      idx++;
+    }
 
-  <section id="assets" class="assets" hidden>
-    <div class="heading">
+    if (ddg.AbstractText) {
+      sources.push({
+        id: idx,
+        title: ddg.Heading || "Web",
+        snippet: ddg.AbstractText.slice(0, 320),
+        url: ddg.AbstractURL,
+        type: "web"
+      });
+      context += `[${idx}] ${ddg.Heading}: ${ddg.AbstractText}\n\n`;
+      idx++;
+    }
+
+    (ddg.RelatedTopics || []).slice(0, 6).forEach(t => {
+      if (t.Text) {
+        sources.push({
+          id: idx,
+          title: t.Text.slice(0, 70),
+          snippet: t.Text,
+          url: t.FirstURL,
+          type: "web"
+        });
+        context += `[${idx}] ${t.Text}\n\n`;
+        idx++;
+      }
+    });
+
+    let answer = null;
+    const key = localStorage.getItem("omni_claude_key");
+    if (key) {
+      answer = await askClaude(query, context, key);
+      if (answer) history.push({ role: "assistant", content: answer });
+    }
+
+    let html = "";
+    if (answer) {
+      html += `<div class="card"><h3>OMNI Answer</h3><p>${answer.replace(/\n/g, "<br>")}</p></div>`;
+    } else if (!key) {
+      html += `<div class="card"><p>Add a Claude API key in Profile for AI answers.</p></div>`;
+    }
+
+    if (sources.length) {
+      html += `<div class="card"><h3>Sources (${sources.length})</h3>`;
+      sources.forEach(s => {
+        html += `<p style="margin:0.55rem 0"><strong>[${s.id}]</strong> 
+                 <a href="${s.url || '#'}" target="_blank" rel="noopener">${s.title}</a><br>
+                 <small>${s.snippet || ''}</small></p>`;
+      });
+      html += `</div>`;
+    }
+
+    if (media.length) {
+      html += `<div class="card"><h3>Creative Commons Images</h3>
+               <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">`;
+      media.forEach(m => {
+        const title = (m.title || "image").replace(/'/g, "");
+        html += `<div>
+                   <img src="${m.thumbnail || m.url}" style="width:100%;border-radius:12px;display:block;">
+                   <button onclick="saveDownload('${m.url}','${title}')"
+                     style="margin-top:6px;width:100%;background:white;color:#e10600;border:none;
+                            padding:6px;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;">
+                     Save
+                   </button>
+                 </div>`;
+      });
+      html += `</div></div>`;
+    }
+
+    resultsArea.innerHTML = html || `<div class="card"><p>No results found.</p></div>`;
+  } catch (err) {
+    console.error(err);
+    resultsArea.innerHTML = `<div class="card"><p>Search failed. Check your connection.</p></div>`;
+  }
+}
+
+async function askClaude(query, context, apiKey) {
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01"
+      },
+      body: JSON.stringify({
+        model: "claude-3-5-sonnet-20241022",
+        max_tokens: 1100,
+        system: "You are OMNI, a source-grounded research assistant. Be clear, direct and truthful. Only use the provided sources. Cite them with [1], [2], etc. If evidence is weak, say so.",
+        messages: [{
+          role: "user",
+          content: `Query: ${query}\n\nSources:\n${context || "No sources."}\n\nGive a clear answer:`
+        }]
+      })
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.content?.[0]?.text || null;
+  } catch {
+    return null;
+  }
+}
+
+/* CAMERA */
+async function startCamera() {
+  if (currentStream) currentStream.getTracks().forEach(t => t.stop());
+  try {
+    currentStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode },
+      audio: false
+    });
+    document.getElementById("cameraVideo").srcObject = currentStream;
+  } catch (e) {
+    alert("Camera needs permission.\nPlease open this file using a local server:\npython3 -m http.server 3000");
+  }
+}
+
+document.getElementById("switchCam").onclick = () => {
+  facingMode = facingMode === "environment" ? "user" : "environment";
+  startCamera();
+};
+
+document.getElementById("captureBtn").onclick = () => {
+  const video = document.getElementById("cameraVideo");
+  const canvas = document.createElement("canvas");
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext("2d").drawImage(video, 0, 0);
+  const dataUrl = canvas.toDataURL("image/jpeg", 0.88);
+  saveDownload(dataUrl, "Camera " + new Date().toLocaleString());
+  alert("Photo saved → go to Saved tab");
+};
+
+/* SAVED */
+function saveDownload(url, title) {
+  downloads.unshift({ url, title, date: new Date().toISOString() });
+  localStorage.setItem("omni_downloads", JSON.stringify(downloads));
+}
+
+function renderSaved() {
+  if (!downloads.length) {
+    savedList.innerHTML = `<p style="opacity:0.7;margin-top:1rem;">No saved items yet</p>`;
+    return;
+  }
+  savedList.innerHTML = downloads.map(d => `
+    <div class="saved-item">
       <div>
-        <p class="eyebrow">OPEN LICENSED MEDIA</p>
-        <h2>Creative Commons images</h2>
+        <div style="font-weight:600;">${d.title}</div>
+        <small style="opacity:0.7">${new Date(d.date).toLocaleString()}</small>
       </div>
-
-      <button id="assetSearchButton" class="ghost" type="button">
-        Search Openverse
-      </button>
+      <a href="${d.url}" download target="_blank">⬇️</a>
     </div>
+  `).join("");
+}
 
-    <p class="asset-help">
-      Check the individual license and attribution requirements before
-      publishing or redistributing an image.
-    </p>
-
-    <div id="assetGrid" class="asset-grid"></div>
-  </section>
-</section>
+/* PROFILE */
+document.getElementById("saveKeyBtn").onclick = () => {
+  localStorage.setItem("omni_claude_key", apiKeyInput.value.trim());
+  alert("API key saved in this browser only");
+};
+</script>
+</body>
+</html>
