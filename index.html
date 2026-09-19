@@ -52,14 +52,14 @@
 </main>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-import { getAI, getGenerativeModel, GoogleAIBackend } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-ai.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, where, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+import { getAI, getGenerativeModel, GoogleAIBackend } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-ai.js";
 
 const firebaseConfig = {
   projectId: "omni-7dd23",
-  apiKey: "YOUR_API_KEY", // Replace with your actual Firebase API Key
+  apiKey: "YOUR_API_KEY", // Set your web API Key here
   authDomain: "omni-7dd23.firebaseapp.com"
 };
 
@@ -96,12 +96,16 @@ onAuthStateChanged(auth, u => {
 });
 
 function syncHistory(uid) {
-  const q = query(collection(db, "chats"), where("uid", "==", uid), orderBy("timestamp", "desc"));
+  const q = query(collection(db, "chats"), where("uid", "==", uid));
   onSnapshot(q, snapshot => {
     const list = document.getElementById('historyList');
     list.innerHTML = "";
-    snapshot.forEach(doc => {
-      const data = doc.data();
+    const docs = [];
+    snapshot.forEach(doc => docs.push({ id: doc.id, ...doc.data() }));
+    
+    docs.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+
+    docs.forEach(data => {
       const div = document.createElement('div');
       div.className = "history-item";
       div.innerText = data.prompt.slice(0, 30) + "...";
@@ -115,6 +119,11 @@ window.runOmni = async () => {
   const prompt = document.getElementById('prompt').value.trim();
   const output = document.getElementById('aiOutput');
   if (!prompt || !user) return;
+
+  if (firebaseConfig.apiKey === "YOUR_API_KEY") {
+    output.innerHTML = "<span style='color:var(--accent)'>Error: Please replace YOUR_API_KEY inside the script config!</span>";
+    return;
+  }
 
   output.innerHTML = "<i>OMNI is thinking, executing, and retrieving...</i>";
 
@@ -138,7 +147,7 @@ window.runOmni = async () => {
       uid: user.uid,
       prompt,
       response: responseText,
-      timestamp: new Date()
+      timestamp: serverTimestamp()
     });
   } catch (err) {
     output.innerHTML = `<span style="color:var(--accent)">Error: ${err.message}</span>`;
@@ -148,3 +157,4 @@ document.getElementById('runBtn').onclick = window.runOmni;
 </script>
 </body>
 </html>
+
