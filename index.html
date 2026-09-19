@@ -1,636 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-<meta name="theme-color" content="#8e0300" />
-<title>OMNI AI</title>
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OMNI Pro — AI Studio</title>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
 <style>
   :root {
-    --red-primary: #e10600;
-    --red-dark: #8e0300;
-    --red-glow: rgba(225, 6, 0, 0.4);
-    --bg-gradient: linear-gradient(135deg, #500100 0%, #8e0300 50%, #e10600 100%);
-    --panel-card: rgba(0, 0, 0, 0.35);
-    --panel-border: rgba(255, 255, 255, 0.18);
-    --white: #ffffff;
-    --nav-height: calc(64px + env(safe-area-inset-bottom, 0px));
+    --bg: #12121c;
+    --panel: rgba(26, 26, 38, 0.85);
+    --border: rgba(255, 255, 255, 0.12);
+    --accent: #ff2f47;
+    --text: #f3f3f7;
   }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
-    background: var(--bg-gradient);
-    background-attachment: fixed;
-    color: var(--white);
-    height: 100dvh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    background: var(--bg); color: var(--text); font-family: system-ui, sans-serif;
+    margin: 0; display: grid; grid-template-columns: 280px 1fr; height: 100vh;
   }
-
-  .screen {
-    flex: 1;
-    display: none;
-    flex-direction: column;
-    padding: 16px;
-    padding-top: max(16px, env(safe-area-inset-top));
-    overflow-y: auto;
-    padding-bottom: calc(var(--nav-height) + 20px);
-    scrollbar-width: none;
+  aside, main { padding: 20px; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
+  aside { border-right: 1px solid var(--border); background: rgba(0,0,0,0.2); }
+  .card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 15px; }
+  textarea {
+    width: 100%; height: 100px; background: rgba(0,0,0,0.3); color: #fff;
+    border: 1px solid var(--border); border-radius: 8px; padding: 10px; box-sizing: border-box; resize: none;
   }
-  .screen::-webkit-scrollbar { display: none; }
-  .screen.active { display: flex; }
-
-  .header-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    gap: 10px;
+  .btn-accent {
+    background: var(--accent); color: #fff; border: none; padding: 12px;
+    border-radius: 8px; font-weight: bold; cursor: pointer; box-shadow: 0 0 10px rgba(255,47,71,0.4);
   }
-
-  .logo {
-    font-size: 1.9rem;
-    font-weight: 900;
-    letter-spacing: 4px;
-    text-shadow: 0 0 12px var(--red-glow);
-  }
-
-  .badge {
-    background: rgba(255, 255, 255, 0.2);
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    border: 1px solid var(--panel-border);
-  }
-
-  .card {
-    background: var(--panel-card);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--panel-border);
-    border-radius: 20px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  }
-
-  .chat-box {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 12px;
-    overflow-y: auto;
-  }
-
-  .msg {
-    max-width: 88%;
-    padding: 12px 16px;
-    border-radius: 18px;
-    font-size: 0.95rem;
-    line-height: 1.45;
-    word-break: break-word;
-  }
-  .msg.user {
-    align-self: flex-end;
-    background: var(--white);
-    color: #111;
-    border-bottom-right-radius: 4px;
-  }
-  .msg.assistant {
-    align-self: flex-start;
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid var(--panel-border);
-    border-bottom-left-radius: 4px;
-  }
-
-  .input-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-    background: var(--white);
-    border-radius: 30px;
-    padding: 6px 10px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-  }
-
-  .input-wrapper input {
-    flex: 1;
-    border: none;
-    outline: none;
-    padding: 10px 14px;
-    font-size: 1rem;
-    color: #111;
-    background: transparent;
-  }
-
-  .btn-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: none;
-    background: var(--red-primary);
-    color: var(--white);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-    margin-left: 4px;
-  }
-  .btn-icon.recording { animation: pulse 1s infinite alternate; background: #ff2400; }
-
-  .btn {
-    background: var(--white);
-    color: var(--red-dark);
-    border: none;
-    padding: 12px 18px;
-    border-radius: 14px;
-    font-weight: 800;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 8px;
-  }
-
-  .btn-small {
-    background: rgba(255,255,255,0.15);
-    border: 1px solid var(--panel-border);
-    color: white;
-    padding: 6px 12px;
-    border-radius: 10px;
-    font-size: 0.8rem;
-    cursor: pointer;
-  }
-
-  nav {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    height: var(--nav-height);
-    background: rgba(40, 0, 0, 0.85);
-    backdrop-filter: blur(25px);
-    display: flex;
-    justify-content: space-around;
-    align-items: flex-start;
-    padding-top: 10px;
-    border-top: 1px solid var(--panel-border);
-    z-index: 1000;
-  }
-
-  .nav-btn {
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.8rem;
-    font-weight: 700;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    cursor: pointer;
-  }
-  .nav-btn.active { color: var(--white); }
-
-  #toast {
-    position: fixed;
-    bottom: calc(var(--nav-height) + 15px);
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.9);
-    border: 1px solid var(--panel-border);
-    color: var(--white);
-    padding: 8px 18px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    z-index: 2000;
-    display: none;
-  }
-
-  .chat-list-item {
-    padding: 12px;
-    border-radius: 14px;
-    background: rgba(255,255,255,0.08);
-    margin-bottom: 8px;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .chat-list-item.active {
-    background: rgba(255,255,255,0.2);
-    border: 1px solid var(--panel-border);
-  }
-
-  @keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(255, 36, 0, 0.7); }
-    100% { box-shadow: 0 0 0 12px rgba(255, 36, 0, 0); }
-  }
+  .output { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 20px; flex: 1; overflow-y: auto; }
+  .history-item { padding: 8px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 13px; }
+  .history-item:hover { color: var(--accent); }
 </style>
 </head>
 <body>
 
-<!-- HOME / CHAT -->
-<div id="homeScreen" class="screen active">
-  <div class="header-bar">
-    <div class="logo">OMNI</div>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <span class="badge" id="engineBadge">Cloud Mode</span>
-      <button class="btn-small" onclick="newChat()">+ New</button>
-    </div>
+<aside>
+  <h2 style="color:var(--accent); margin:0;">OMNI PRO</h2>
+  <button id="authBtn" class="btn-accent" style="background:#222; border:1px solid var(--border);">Sign In</button>
+  <div class="card" style="flex:1; display:flex; flex-direction:column; gap:10px;">
+    <h4 style="margin:0; color:var(--accent);">Saved Chats</h4>
+    <div id="historyList" style="flex:1; overflow-y:auto; font-size:12px;">Login to sync chats.</div>
   </div>
+</aside>
 
-  <div class="chat-box" id="chatContainer">
-    <div class="msg assistant">
-      Hello! I’m OMNI. Ask me anything. You can also load a local WebGPU model in Settings or add your Claude key for stronger answers.
-    </div>
-  </div>
-
-  <div class="input-wrapper">
-    <input id="promptInput" type="text" placeholder="Ask OMNI..." autocomplete="off" />
-    <button class="btn-icon" id="voiceBtn" title="Voice">🎤</button>
-    <button class="btn-icon" id="sendBtn" title="Send">➔</button>
-  </div>
-</div>
-
-<!-- CHATS LIST -->
-<div id="chatsScreen" class="screen">
-  <div class="header-bar">
-    <h2>Conversations</h2>
-    <button class="btn-small" onclick="newChat()">+ New Chat</button>
-  </div>
-  <div id="chatList"></div>
-</div>
-
-<!-- SETTINGS -->
-<div id="settingsScreen" class="screen">
-  <div class="header-bar">
-    <h2>Settings</h2>
-  </div>
-
-  <div class="card">
-    <h3>Claude API Key (Cloud)</h3>
-    <p style="font-size:0.85rem;opacity:0.8;margin:6px 0;">Used when local model is not loaded. Stored only in this browser.</p>
-    <input type="password" id="apiKeyInput" placeholder="sk-ant-..." style="width:100%;padding:12px;border-radius:12px;border:none;margin-top:6px;">
-    <button class="btn" onclick="saveApiKey()">Save Key</button>
-  </div>
-
-  <div class="card">
-    <h3>Local WebGPU Engine</h3>
-    <p style="font-size:0.85rem;opacity:0.8;margin:6px 0;" id="gpuDetails">Checking hardware...</p>
-    <button class="btn" onclick="initWebGPU()">Load On-Device AI</button>
-  </div>
-
-  <div class="card">
-    <h3>Data</h3>
-    <button class="btn" onclick="clearAllData()" style="background:#ff2400;color:white;">Clear All Chats & Data</button>
-  </div>
-</div>
-
-<!-- NAV -->
-<nav>
-  <button class="nav-btn active" data-screen="home" onclick="navigate('home')">
-    <span>💬</span><span>Chat</span>
-  </button>
-  <button class="nav-btn" data-screen="chats" onclick="navigate('chats')">
-    <span>🗂️</span><span>Chats</span>
-  </button>
-  <button class="nav-btn" data-screen="settings" onclick="navigate('settings')">
-    <span>⚙️</span><span>Settings</span>
-  </button>
-</nav>
-
-<div id="toast"></div>
+<main>
+  <textarea id="prompt" placeholder="Ask anything... OMNI can write code, run Python code, or search the web!"></textarea>
+  <button class="btn-accent" id="runBtn" disabled>Run OMNI ➔ (Login Required)</button>
+  <div id="aiOutput" class="output">Please sign in to access your cloud workspace.</div>
+</main>
 
 <script type="module">
-  import { CreateMLCEngine } from "https://esm.run/@mlc-ai/web-llm";
-  window.CreateMLCEngine = CreateMLCEngine;
-</script>
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+import { getAI, getGenerativeModel, GoogleAIBackend } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-ai.js";
 
-<script>
-/* ===================== STATE ===================== */
-let localEngine = null;
-let conversations = JSON.parse(localStorage.getItem("omni_conversations") || "[]");
-let currentChatId = localStorage.getItem("omni_current_chat") || null;
+const firebaseConfig = {
+  projectId: "omni-7dd23",
+  apiKey: "YOUR_API_KEY", // Replace with your actual Firebase API Key
+  authDomain: "omni-7dd23.firebaseapp.com"
+};
 
-const chatContainer = document.getElementById("chatContainer");
-const promptInput = document.getElementById("promptInput");
-const engineBadge = document.getElementById("engineBadge");
-const apiKeyInput = document.getElementById("apiKeyInput");
-
-apiKeyInput.value = localStorage.getItem("omni_claude_key") || "";
-
-/* ===================== HELPERS ===================== */
-function showToast(msg) {
-  const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.style.display = "block";
-  setTimeout(() => t.style.display = "none", 2500);
-}
-
-function saveConversations() {
-  localStorage.setItem("omni_conversations", JSON.stringify(conversations));
-  localStorage.setItem("omni_current_chat", currentChatId);
-}
-
-function generateId() {
-  return "chat_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7);
-}
-
-/* ===================== NAVIGATION ===================== */
-function navigate(screen) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
-
-  document.getElementById(screen + "Screen").classList.add("active");
-  document.querySelector(`.nav-btn[data-screen="${screen}"]`).classList.add("active");
-
-  if (screen === "chats") renderChatList();
-  if (screen === "settings") verifyHardware();
-}
-
-/* ===================== CHAT MANAGEMENT ===================== */
-function newChat() {
-  const id = generateId();
-  const chat = {
-    id,
-    title: "New Conversation",
-    messages: [
-      { role: "assistant", content: "New chat started. How can I help you?" }
-    ],
-    updatedAt: Date.now()
-  };
-  conversations.unshift(chat);
-  currentChatId = id;
-  saveConversations();
-  loadCurrentChat();
-  navigate("home");
-  showToast("New chat created");
-}
-
-function loadCurrentChat() {
-  chatContainer.innerHTML = "";
-  const chat = conversations.find(c => c.id === currentChatId);
-  if (!chat) {
-    newChat();
-    return;
-  }
-  chat.messages.forEach(m => appendMessage(m.role, m.content, false));
-  chatContainer.scrollTop = chatContainer.scrollHeight;
-}
-
-function renderChatList() {
-  const list = document.getElementById("chatList");
-  if (!conversations.length) {
-    list.innerHTML = `<div class="card"><p>No conversations yet.</p></div>`;
-    return;
-  }
-  list.innerHTML = conversations.map(c => `
-    <div class="chat-list-item ${c.id === currentChatId ? 'active' : ''}" onclick="switchChat('${c.id}')">
-      <div>
-        <div style="font-weight:700;">${c.title}</div>
-        <small style="opacity:0.7">${new Date(c.updatedAt).toLocaleString()}</small>
-      </div>
-      <button class="btn-small" onclick="event.stopPropagation();deleteChat('${c.id}')">✕</button>
-    </div>
-  `).join("");
-}
-
-function switchChat(id) {
-  currentChatId = id;
-  saveConversations();
-  loadCurrentChat();
-  navigate("home");
-}
-
-function deleteChat(id) {
-  conversations = conversations.filter(c => c.id !== id);
-  if (currentChatId === id) {
-    currentChatId = conversations[0]?.id || null;
-  }
-  saveConversations();
-  renderChatList();
-  if (!conversations.length) newChat();
-  showToast("Chat deleted");
-}
-
-/* ===================== MESSAGES ===================== */
-function appendMessage(role, text, save = true) {
-  const msg = document.createElement("div");
-  msg.className = `msg ${role}`;
-  msg.innerHTML = DOMPurify.sanitize(marked.parse(text || ""));
-  chatContainer.appendChild(msg);
-  chatContainer.scrollTop = chatContainer.scrollHeight;
-
-  if (save) {
-    const chat = conversations.find(c => c.id === currentChatId);
-    if (chat) {
-      chat.messages.push({ role, content: text });
-      chat.updatedAt = Date.now();
-      if (role === "user" && chat.title === "New Conversation") {
-        chat.title = text.slice(0, 40) + (text.length > 40 ? "..." : "");
-      }
-      saveConversations();
-    }
-  }
-  return msg;
-}
-
-/* ===================== SEND MESSAGE ===================== */
-document.getElementById("sendBtn").onclick = sendMessage;
-promptInput.addEventListener("keydown", e => {
-  if (e.key === "Enter") sendMessage();
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const ai = getAI(app, { backend: new GoogleAIBackend() });
+const model = getGenerativeModel(ai, {
+  model: "gemini-3.7-flash",
+  tools: [{ codeExecution: {} }, { googleSearch: {} }]
 });
 
-async function sendMessage() {
-  const prompt = promptInput.value.trim();
-  if (!prompt) return;
+let user = null;
 
-  appendMessage("user", prompt);
-  promptInput.value = "";
+document.getElementById('authBtn').onclick = () => user ? signOut(auth) : signInWithPopup(auth, new GoogleAuthProvider());
 
-  const responseEl = appendMessage("assistant", "Thinking...", false);
-
-  // Prefer local engine if available
-  if (localEngine) {
-    try {
-      const stream = await localEngine.chat.completions.create({
-        messages: [{ role: "user", content: prompt }],
-        stream: true
-      });
-      let full = "";
-      for await (const chunk of stream) {
-        full += chunk.choices[0]?.delta?.content || "";
-        responseEl.innerHTML = DOMPurify.sanitize(marked.parse(full));
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-      }
-      // save final
-      const chat = conversations.find(c => c.id === currentChatId);
-      if (chat) {
-        chat.messages.push({ role: "assistant", content: full });
-        chat.updatedAt = Date.now();
-        saveConversations();
-      }
-      addExportButton(responseEl, full);
-      return;
-    } catch (e) {
-      responseEl.textContent = "Local model error. Falling back to cloud...";
-    }
-  }
-
-  // Cloud fallback (Claude)
-  const key = localStorage.getItem("omni_claude_key");
-  if (!key) {
-    responseEl.innerHTML = DOMPurify.sanitize(marked.parse("No local model loaded and no Claude API key set.\n\nGo to **Settings** to add your key or load the on-device model."));
-    return;
-  }
-
-  try {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        "x-api-key": key,
-        "anthropic-version": "2023-06-01"
-      },
-      body: JSON.stringify({
-        model: "claude-3-5-sonnet-20241022",
-        max_tokens: 1024,
-        messages: [{ role: "user", content: prompt }]
-      })
-    });
-
-    if (!res.ok) throw new Error("API error");
-    const data = await res.json();
-    const text = data.content?.[0]?.text || "No response";
-    responseEl.innerHTML = DOMPurify.sanitize(marked.parse(text));
-
-    const chat = conversations.find(c => c.id === currentChatId);
-    if (chat) {
-      chat.messages.push({ role: "assistant", content: text });
-      chat.updatedAt = Date.now();
-      saveConversations();
-    }
-    addExportButton(responseEl, text);
-  } catch (err) {
-    responseEl.textContent = "Failed to get response. Check your API key or connection.";
-  }
-}
-
-function addExportButton(node, text) {
-  const btn = document.createElement("button");
-  btn.className = "btn-small";
-  btn.style.marginTop = "8px";
-  btn.textContent = "Export";
-  btn.onclick = () => exportText(text);
-  node.appendChild(btn);
-}
-
-function exportText(text) {
-  if (navigator.share) {
-    navigator.share({ title: "OMNI", text }).catch(() => {});
+onAuthStateChanged(auth, u => {
+  user = u;
+  const authBtn = document.getElementById('authBtn');
+  const runBtn = document.getElementById('runBtn');
+  const historyList = document.getElementById('historyList');
+  if (u) {
+    authBtn.innerText = `Sign Out (${u.displayName.split(" ")[0]})`;
+    runBtn.disabled = false;
+    runBtn.innerText = "Run OMNI ➔";
+    syncHistory(u.uid);
   } else {
-    navigator.clipboard.writeText(text);
-    showToast("Copied to clipboard");
+    authBtn.innerText = "Sign In with Google";
+    runBtn.disabled = true;
+    runBtn.innerText = "Run OMNI ➔ (Login Required)";
+    historyList.innerHTML = "Login to sync chats.";
+    document.getElementById('aiOutput').innerText = "Please sign in to access your cloud workspace.";
   }
-}
+});
 
-/* ===================== SETTINGS ===================== */
-function saveApiKey() {
-  localStorage.setItem("omni_claude_key", apiKeyInput.value.trim());
-  showToast("API key saved");
-}
-
-async function verifyHardware() {
-  const details = document.getElementById("gpuDetails");
-  if (!navigator.gpu) {
-    details.innerHTML = "<span style='color:#ff9999;'>WebGPU not supported. Using Cloud mode.</span>";
-    return;
-  }
-  try {
-    const adapter = await navigator.gpu.requestAdapter();
-    details.innerHTML = adapter
-      ? "<span style='color:#99ff99;'>WebGPU available – you can load a local model.</span>"
-      : "<span style='color:#ff9999;'>No compatible GPU adapter found.</span>";
-  } catch {
-    details.innerHTML = "<span style='color:#ff9999;'>WebGPU check failed.</span>";
-  }
-}
-
-async function initWebGPU() {
-  if (!window.CreateMLCEngine) {
-    showToast("WebLLM still loading… try again in a few seconds");
-    return;
-  }
-  engineBadge.textContent = "Loading…";
-  try {
-    localEngine = await window.CreateMLCEngine("Llama-3.2-1B-Instruct-q4f16_1-MLC", {
-      initProgressCallback: (p) => {
-        engineBadge.textContent = `Loading ${Math.round((p.progress || 0) * 100)}%`;
-      }
+function syncHistory(uid) {
+  const q = query(collection(db, "chats"), where("uid", "==", uid), orderBy("timestamp", "desc"));
+  onSnapshot(q, snapshot => {
+    const list = document.getElementById('historyList');
+    list.innerHTML = "";
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const div = document.createElement('div');
+      div.className = "history-item";
+      div.innerText = data.prompt.slice(0, 30) + "...";
+      div.onclick = () => document.getElementById('aiOutput').innerHTML = DOMPurify.sanitize(marked.parse(data.response));
+      list.appendChild(div);
     });
-    engineBadge.textContent = "Local WebGPU";
-    engineBadge.style.background = "#00c853";
-    showToast("Local model ready");
-  } catch (err) {
-    engineBadge.textContent = "Cloud Mode";
-    showToast("Failed to load local model");
-  }
+  });
 }
 
-function clearAllData() {
-  if (confirm("Delete all conversations and settings?")) {
-    localStorage.removeItem("omni_conversations");
-    localStorage.removeItem("omni_current_chat");
-    localStorage.removeItem("omni_claude_key");
-    conversations = [];
-    currentChatId = null;
-    newChat();
-    showToast("All data cleared");
-  }
-}
+window.runOmni = async () => {
+  const prompt = document.getElementById('prompt').value.trim();
+  const output = document.getElementById('aiOutput');
+  if (!prompt || !user) return;
 
-/* ===================== VOICE ===================== */
-const voiceBtn = document.getElementById("voiceBtn");
-if ("SpeechRecognition" in window || "webkitSpeechRecognition" in window) {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const recognition = new SpeechRecognition();
-  recognition.continuous = false;
-  recognition.interimResults = true;
+  output.innerHTML = "<i>OMNI is thinking, executing, and retrieving...</i>";
 
-  recognition.onresult = (e) => {
-    promptInput.value = Array.from(e.results).map(r => r[0].transcript).join("");
-  };
-  recognition.onend = () => voiceBtn.classList.remove("recording");
+  try {
+    const result = await model.generateContent(prompt);
+    const parts = result.response.candidates?.[0]?.content?.parts;
+    let md = "";
 
-  voiceBtn.onclick = () => {
-    if (voiceBtn.classList.contains("recording")) {
-      recognition.stop();
-    } else {
-      recognition.start();
-      voiceBtn.classList.add("recording");
-      showToast("Listening…");
+    if (parts) {
+      parts.forEach(part => {
+        if (part.text) md += part.text;
+        if (part.executableCode) md += `\n\n**Executing Code:**\n\`\`\`python\n${part.executableCode.code}\n\`\`\``;
+        if (part.codeExecutionResult) md += `\n\n**Console Output:**\n\`\`\`\n${part.codeExecutionResult.output}\n\`\`\``;
+      });
     }
-  };
-} else {
-  voiceBtn.onclick = () => showToast("Speech recognition not supported");
-}
 
-/* ===================== INIT ===================== */
-if (!conversations.length) {
-  newChat();
-} else {
-  if (!currentChatId || !conversations.find(c => c.id === currentChatId)) {
-    currentChatId = conversations[0].id;
+    const responseText = md || "No response received.";
+    output.innerHTML = DOMPurify.sanitize(marked.parse(responseText));
+    
+    await addDoc(collection(db, "chats"), {
+      uid: user.uid,
+      prompt,
+      response: responseText,
+      timestamp: new Date()
+    });
+  } catch (err) {
+    output.innerHTML = `<span style="color:var(--accent)">Error: ${err.message}</span>`;
   }
-  loadCurrentChat();
-}
+};
+document.getElementById('runBtn').onclick = window.runOmni;
 </script>
 </body>
 </html>
