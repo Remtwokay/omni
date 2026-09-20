@@ -3,690 +3,480 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>OMNI — Search, Chat, Vision, Voice</title>
+<title>OMNI</title>
 <style>
-:root{
-  --bg:#d1001f;--bg-deep:#a3001a;--panel:#fff;--panel-2:#fff2f2;
-  --line:rgba(255,255,255,.28);--line-dark:#f0d3d3;
-  --text:#fff;--text-dark:#23090b;--muted:#ffd9dc;--muted-dark:#8a5a5f;
-  --ink:#7a0012;--gold:#ffcf3f;--green:#0a8f4c;
-  --shadow:0 20px 60px rgba(0,0,0,.35);
+:root {
+  --bg: #d1001f;
+  --bg-deep: #a3001a;
+  --ink: #7a0012;
+  --line: rgba(255,255,255,.28);
+  --text-dark: #23090b;
+  --muted: #ffd9dc;
+  --shadow: 0 20px 50px rgba(0,0,0,.28);
   --nav-h: calc(64px + env(safe-area-inset-bottom, 0px));
 }
-*{box-sizing:border-box}
+*{box-sizing:border-box;margin:0;padding:0}
 body{
-  margin:0;
+  font-family:Inter,system-ui,-apple-system,sans-serif;
   background:radial-gradient(circle at 10% -10%,#ff2f47 0,transparent 40rem),
              radial-gradient(circle at 100% 10%,var(--bg-deep) 0,transparent 40rem),var(--bg);
-  color:#fff;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
-  min-height:100vh;padding-bottom:var(--nav-h);
+  color:#fff;min-height:100vh;padding-bottom:var(--nav-h);
 }
-button,input,textarea,select{font:inherit}
-button{cursor:pointer}
+button,input,textarea{font:inherit}button{cursor:pointer}
 [hidden]{display:none!important}
-a{color:inherit}
 
-.top-bar{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:14px 18px;position:sticky;top:0;
-  background:rgba(163,0,26,.75);backdrop-filter:blur(14px);z-index:5;
-}
-.brand{display:flex;align-items:center;gap:8px;font-weight:900;letter-spacing:2px;font-size:17px;text-decoration:none;color:#fff}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;position:sticky;top:0;background:rgba(163,0,26,.82);backdrop-filter:blur(12px);z-index:30}
+.brand{display:flex;align-items:center;gap:8px;font-weight:900;letter-spacing:2px;text-decoration:none;color:#fff}
 .brand-mark{width:28px;height:28px;border-radius:8px;background:#fff;color:var(--bg);display:grid;place-items:center;font-weight:900}
-.shell{max-width:900px;margin:0 auto;padding:18px}
 
-/* Search */
-.hero{text-align:center;padding:10px 0 20px}
-.hero h1{font-size:clamp(26px,6vw,38px);margin:0 0 8px;text-shadow:0 6px 24px rgba(0,0,0,.25)}
-.hero p{color:var(--muted);font-size:13px;max-width:520px;margin:0 auto}
-.search-form{background:#fff;border-radius:26px;padding:8px;box-shadow:var(--shadow)}
-#query{width:100%;border:0;outline:0;background:transparent;color:var(--text-dark);font-size:17px;font-weight:600;padding:14px;resize:vertical;min-height:56px}
-#query::placeholder{color:#b3444f;font-weight:700}
-.search-row2{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line-dark);padding:8px 10px 4px;flex-wrap:wrap;gap:8px}
-.deep-toggle{font-size:12px;color:var(--muted-dark);display:flex;align-items:center;gap:6px}
-.go-btn{background:var(--ink);color:#fff;border:0;border-radius:12px;padding:10px 18px;font-weight:900}
-.tabs{display:flex;gap:8px;overflow-x:auto;margin:14px 0 10px}
-.tab{background:rgba(255,255,255,.14);border:0;color:#fff;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
+.shell{max-width:860px;margin:0 auto;padding:16px}
+.hero{text-align:center;padding:6px 0 16px}
+.hero h1{font-size:clamp(24px,5.5vw,32px);margin-bottom:6px}
+.hero p{color:var(--muted);font-size:13px}
+
+.search-form{background:#fff;border-radius:24px;padding:8px;box-shadow:var(--shadow)}
+#query{width:100%;border:0;outline:0;background:transparent;color:var(--text-dark);font-size:16px;font-weight:600;padding:12px 14px;resize:none;min-height:52px}
+.search-row{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #f0d3d3;padding:8px 10px 4px;gap:8px;flex-wrap:wrap}
+.go-btn{background:var(--ink);color:#fff;border:0;border-radius:12px;padding:9px 16px;font-weight:800}
+
+.tabs{display:flex;gap:8px;overflow-x:auto;margin:12px 0}
+.tab{background:rgba(255,255,255,.14);border:0;color:#fff;padding:7px 13px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
 .tab.active{background:#fff;color:var(--bg)}
-.answer-card{background:#fff;color:var(--text-dark);border-radius:16px;padding:18px;margin-bottom:14px}
-.answer-card .label{color:var(--bg);font-size:11px;font-weight:900;letter-spacing:1px}
-.answer-body{line-height:1.7;font-size:14.5px;margin-top:8px}
-.answer-body h3{color:var(--ink);margin:14px 0 6px}
-.cite{background:var(--bg);color:#fff;border-radius:5px;padding:0 5px;font-size:12px;font-weight:800}
-.results{display:grid;gap:10px}
-.result-card{background:var(--panel-2);border:1px solid #f5d6d6;border-radius:12px;padding:12px;color:var(--text-dark)}
-.result-card img.thumb{width:100%;height:110px;object-fit:cover;border-radius:8px;margin-bottom:8px}
-.result-top{display:flex;justify-content:space-between;font-size:10px;font-weight:800;color:var(--bg);text-transform:uppercase;margin-bottom:4px}
-.result-card h3{font-size:13px;margin:0 0 4px}
-.result-card p{font-size:12px;color:#6d4a4c;margin:0 0 6px}
-.result-actions a{font-size:11px;font-weight:800;border:1px solid var(--bg);color:var(--bg);border-radius:8px;padding:4px 9px;text-decoration:none;margin-right:6px}
-.result-actions a.dl{background:var(--bg);color:#fff}
-.empty-note{text-align:center;color:var(--muted);font-size:13px;padding:30px 10px}
 
-/* Chat */
-.chat-thread{display:flex;flex-direction:column;gap:10px;padding-bottom:14px;min-height:50vh}
-.bubble{max-width:82%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.55}
-.bubble.user{align-self:flex-end;background:#fff;color:var(--text-dark);border-bottom-right-radius:4px}
-.bubble.assistant{align-self:flex-start;background:rgba(255,255,255,.14);border:1px solid var(--line);border-bottom-left-radius:4px}
-.bubble img{max-width:180px;border-radius:10px;display:block;margin-bottom:6px}
-.chat-composer{position:fixed;left:0;right:0;bottom:var(--nav-h);background:rgba(163,0,26,.94);backdrop-filter:blur(10px);padding:10px 14px;display:flex;gap:8px;align-items:flex-end;border-top:1px solid var(--line)}
-.chat-composer textarea{flex:1;border-radius:14px;border:0;padding:10px 12px;font-size:14px;resize:none;min-height:40px;max-height:120px}
-.chat-attach{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);padding:0 4px 6px}
-.chat-attach img{width:30px;height:30px;object-fit:cover;border-radius:6px}
+.card{background:#fff;color:var(--text-dark);border-radius:16px;padding:16px;margin-bottom:12px}
+.card .label{color:var(--bg);font-size:11px;font-weight:900;letter-spacing:.4px}
+.answer-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.action-btn{background:#fff2f2;border:1px solid #f0d3d3;color:var(--ink);padding:6px 11px;border-radius:10px;font-size:12px;font-weight:700}
+
+.history-bar{display:flex;gap:8px;overflow-x:auto;margin:10px 0}
+.history-chip{background:rgba(0,0,0,.22);border:none;color:#fff;padding:5px 11px;border-radius:16px;font-size:12px;white-space:nowrap}
+
+.chat-thread{display:flex;flex-direction:column;gap:10px;min-height:48vh;padding-bottom:12px}
+.bubble{max-width:88%;padding:11px 14px;border-radius:16px;font-size:14px;line-height:1.5}
+.bubble.user{align-self:flex-end;background:#fff;color:var(--text-dark)}
+.bubble.assistant{align-self:flex-start;background:rgba(255,255,255,.13);border:1px solid var(--line)}
+.bubble img{max-width:150px;border-radius:10px;display:block;margin-bottom:6px}
+
+.chat-composer{position:fixed;left:0;right:0;bottom:var(--nav-h);background:rgba(163,0,26,.95);backdrop-filter:blur(10px);padding:10px 14px;display:flex;gap:8px;align-items:flex-end;border-top:1px solid var(--line)}
+.chat-composer textarea{flex:1;border-radius:14px;border:0;padding:10px 12px;min-height:42px;max-height:110px;resize:none}
 .send-btn{background:#fff;color:var(--bg);border:0;border-radius:14px;padding:10px 14px;font-weight:900}
 
-/* Saved */
 .saved-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
 .saved-item{background:rgba(255,255,255,.12);border-radius:14px;overflow:hidden}
 .saved-item img{width:100%;height:120px;object-fit:cover;display:block}
 .saved-item .info{padding:8px;font-size:12px}
 
-/* Profile */
-.profile-card{background:#fff;color:var(--text-dark);border-radius:16px;padding:18px;margin-bottom:14px}
-.profile-card h2{font-size:15px;margin:0 0 12px;color:var(--ink)}
-.profile-card label{display:block;font-size:12px;font-weight:700;margin:10px 0 4px;color:#4a2426}
-.profile-card input[type=text],.profile-card input[type=password]{width:100%;border:1px solid #f2c9c9;background:var(--panel-2);border-radius:8px;padding:9px 10px;color:var(--text-dark)}
-.profile-card .note{font-size:11px;color:#8a5a5f;line-height:1.6;margin-top:6px}
-.remember{display:flex;align-items:center;gap:6px;font-size:11px;color:#8a5a5f;margin-top:6px}
-.save-btn{margin-top:14px;background:var(--ink);color:#fff;border:0;border-radius:10px;padding:9px 16px;font-weight:800}
+.profile-card{background:#fff;color:var(--text-dark);border-radius:16px;padding:16px;margin-bottom:12px}
+.profile-card h2{font-size:15px;margin-bottom:10px;color:var(--ink)}
+.profile-card label{display:block;font-size:12px;font-weight:700;margin:10px 0 4px}
+.profile-card input,.profile-card textarea{width:100%;border:1px solid #f2c9c9;background:#fff2f2;border-radius:8px;padding:9px 10px;color:var(--text-dark)}
+.save-btn{margin-top:12px;background:var(--ink);color:#fff;border:0;border-radius:10px;padding:9px 16px;font-weight:800;width:100%}
 
-/* Camera modal + filters */
-dialog{border:0;border-radius:16px;padding:0;max-width:420px;width:92%;box-shadow:var(--shadow)}
-dialog::backdrop{background:rgba(0,0,0,.65);backdrop-filter:blur(3px)}
-.cam-wrap{background:#fff;color:var(--text-dark);border-radius:16px;padding:16px}
-.cam-wrap h3{margin:0 0 8px;font-size:15px;color:var(--ink)}
-#cameraVideo{width:100%;border-radius:10px;background:#000;max-height:280px;object-fit:cover}
-.filter-bar{display:flex;gap:6px;overflow-x:auto;margin:10px 0;padding-bottom:4px}
-.filter-btn{background:#fff2f2;border:1px solid #f0d3d3;color:var(--ink);padding:6px 11px;border-radius:16px;font-size:11px;font-weight:700;white-space:nowrap}
-.filter-btn.active{background:var(--bg);color:#fff;border-color:var(--bg)}
-.cam-actions{display:flex;gap:8px;margin-top:10px;justify-content:flex-end}
-.cam-actions button{border-radius:10px;padding:8px 14px;font-weight:800;font-size:13px}
-.cam-flip{background:var(--panel-2);border:1px solid var(--bg);color:var(--bg)}
-.cam-cancel{background:var(--panel-2);border:1px solid var(--line-dark);color:var(--text-dark)}
-.cam-capture{background:var(--ink);border:0;color:#fff}
-
-/* Bottom nav */
-.bottom-nav{
-  position:fixed;left:0;right:0;bottom:0;
-  background:rgba(163,0,26,.94);backdrop-filter:blur(14px);
-  border-top:1px solid var(--line);
-  display:flex;justify-content:space-around;
-  padding:8px 4px calc(8px + env(safe-area-inset-bottom,0px));z-index:10;
-}
-.nav-btn{background:none;border:0;color:#fff;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:700;padding:4px 10px;border-radius:10px;opacity:.75}
+.bottom-nav{position:fixed;left:0;right:0;bottom:0;background:rgba(163,0,26,.95);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:8px 4px calc(8px + env(safe-area-inset-bottom));z-index:40}
+.nav-btn{background:none;border:0;color:#fff;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:700;padding:4px 8px;border-radius:10px;opacity:.75}
 .nav-btn.active{opacity:1;background:rgba(255,255,255,.18)}
 .nav-btn .icon{font-size:20px}
-.nav-btn.listening{animation:pulse 1s ease-in-out infinite}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.5)}50%{box-shadow:0 0 0 8px rgba(255,255,255,0)}}
+
+dialog{border:0;border-radius:16px;padding:0;max-width:420px;width:92%}
+dialog::backdrop{background:rgba(0,0,0,.65)}
+.cam-wrap{background:#fff;color:var(--text-dark);border-radius:16px;padding:16px}
+#cameraVideo{width:100%;border-radius:10px;background:#000;max-height:250px;object-fit:cover}
+.filter-bar{display:flex;gap:6px;overflow-x:auto;margin:10px 0}
+.filter-btn{background:#fff2f2;border:1px solid #f0d3d3;color:var(--ink);padding:6px 11px;border-radius:16px;font-size:11px;font-weight:700;white-space:nowrap}
+.filter-btn.active{background:var(--bg);color:#fff}
+.cam-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+.cam-actions button{border-radius:10px;padding:8px 14px;font-weight:800;font-size:13px}
+
+.empty{text-align:center;padding:40px 16px;color:var(--muted);font-size:14px}
+.chat-item{background:rgba(255,255,255,.12);border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 </style>
 </head>
 <body>
 
 <div class="top-bar">
-  <a class="brand" href="#" id="brandHome"><span class="brand-mark">O</span><span>OMNI</span></a>
+  <a class="brand" href="#" id="brandHome"><span class="brand-mark">O</span> OMNI</a>
+  <button id="newChatBtn" style="background:rgba(255,255,255,.15);border:1px solid var(--line);color:#fff;border-radius:20px;padding:6px 12px;font-size:12px;font-weight:700;">+ New</button>
 </div>
 
 <div class="shell">
 
-  <!-- SEARCH / HOME -->
-  <section id="searchView">
-    <div class="hero">
-      <h1>Search anything on Omni.</h1>
-      <p>Web, academic, images + AI-written answers (with your key).</p>
-    </div>
-
-    <form id="searchForm" class="search-form">
-      <textarea id="query" placeholder="Search anything on Omni…" required></textarea>
-      <div class="search-row2">
-        <label class="deep-toggle"><input type="checkbox" id="deepSearch"> Deep search</label>
-        <button class="go-btn" type="submit">Search</button>
-      </div>
-    </form>
-
-    <div class="tabs" id="scopeTabs">
-      <button class="tab active" data-scope="all" type="button">All</button>
-      <button class="tab" data-scope="web" type="button">Web</button>
-      <button class="tab" data-scope="academic" type="button">Academic</button>
-      <button class="tab" data-scope="media" type="button">Images</button>
-      <button class="tab" data-scope="video" type="button">Video</button>
-    </div>
-
-    <div id="answerArea"></div>
-    <div id="resultsArea" class="results"></div>
-  </section>
-
-  <!-- CHAT -->
-  <section id="chatView" hidden>
-    <div id="chatThread" class="chat-thread">
-      <p class="empty-note">Say something, snap a photo, or use voice.</p>
-    </div>
-  </section>
-
-  <!-- SAVED -->
-  <section id="savedView" hidden>
-    <h2 style="margin:0 0 14px;font-size:18px;">Saved</h2>
-    <div id="savedGrid" class="saved-grid"></div>
-    <p id="savedEmpty" class="empty-note">No saved items yet.</p>
-  </section>
-
-  <!-- PROFILE -->
-  <section id="profileView" hidden>
-    <div class="profile-card">
-      <h2>👤 Profile</h2>
-      <label for="profileName">Display name</label>
-      <input type="text" id="profileName" placeholder="What should OMNI call you?">
-    </div>
-
-    <div class="profile-card">
-      <h2>🔑 API Keys</h2>
-      <label for="claudeKey">Claude API key</label>
-      <input type="password" id="claudeKey" placeholder="sk-ant-...">
-      <label class="remember"><input type="checkbox" id="rememberKey"> Remember on this device</label>
-
-      <label for="youtubeKey">YouTube Data API key (optional)</label>
-      <input type="password" id="youtubeKey" placeholder="Leave blank to skip">
-      <label class="remember"><input type="checkbox" id="rememberYt"> Remember</label>
-
-      <button class="save-btn" id="saveProfileBtn" type="button">Save</button>
-      <p class="note">Keys stay in this browser only.</p>
-    </div>
-  </section>
-</div>
-
-<!-- Chat composer -->
-<div class="chat-composer" id="chatComposer" hidden>
-  <div style="flex:1;">
-    <div id="composerAttach" class="chat-attach" hidden></div>
-    <textarea id="chatInput" placeholder="Message OMNI…"></textarea>
+<section id="searchView">
+  <div class="hero">
+    <h1>Search anything on Omni</h1>
+    <p>Groq-powered answers • Web • Academic</p>
   </div>
-  <button class="send-btn" id="chatSendBtn" type="button">Send</button>
+
+  <form id="searchForm" class="search-form">
+    <textarea id="query" placeholder="Ask anything or paste a URL…" rows="2"></textarea>
+    <div class="search-row">
+      <label style="font-size:12px;color:#8a5a5f;display:flex;align-items:center;gap:6px;">
+        <input type="checkbox" id="deepSearch"> Deep
+      </label>
+      <button class="go-btn" type="submit">Search</button>
+    </div>
+  </form>
+
+  <div class="history-bar" id="historyBar"></div>
+  <div class="tabs">
+    <button class="tab active" data-scope="all">All</button>
+    <button class="tab" data-scope="web">Web</button>
+    <button class="tab" data-scope="academic">Academic</button>
+  </div>
+
+  <div id="answerArea"></div>
+  <div id="resultsArea"></div>
+</section>
+
+<section id="chatView" hidden>
+  <div id="chatList"></div>
+  <div id="chatThread" class="chat-thread">
+    <div class="empty">Start chatting with OMNI</div>
+  </div>
+</section>
+
+<section id="savedView" hidden>
+  <h2 style="margin-bottom:14px;">Saved</h2>
+  <div id="savedGrid" class="saved-grid"></div>
+  <div id="savedEmpty" class="empty">No saved items</div>
+</section>
+
+<section id="profileView" hidden>
+  <div class="profile-card">
+    <h2>Groq API Key</h2>
+    <input type="password" id="groqKey" placeholder="gsk_...">
+    <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-weight:500;">
+      <input type="checkbox" id="rememberKey"> Remember on this device
+    </label>
+    <button class="save-btn" id="saveKeyBtn">Save Key</button>
+    <p style="font-size:12px;color:#8a5a5f;margin-top:8px;">Get a free key at console.groq.com</p>
+  </div>
+
+  <div class="profile-card">
+    <h2>System Prompt</h2>
+    <textarea id="systemPrompt" rows="3"></textarea>
+    <button class="save-btn" id="savePromptBtn">Save Prompt</button>
+  </div>
+
+  <div class="profile-card">
+    <button class="save-btn" id="exportChatBtn">Export Chat</button>
+    <button class="save-btn" style="background:#b91c1c;margin-top:8px;" id="clearDataBtn">Clear All Data</button>
+  </div>
+</section>
 </div>
 
-<!-- Bottom nav -->
+<div class="chat-composer" id="chatComposer" hidden>
+  <div style="flex:1">
+    <div id="composerAttach" style="font-size:12px;margin-bottom:4px;display:none"></div>
+    <textarea id="chatInput" placeholder="Message OMNI…" rows="1"></textarea>
+  </div>
+  <button class="send-btn" id="chatSendBtn">Send</button>
+</div>
+
 <nav class="bottom-nav">
-  <button class="nav-btn active" data-view="search" type="button"><span class="icon">🏠</span>Home</button>
-  <button class="nav-btn" id="navCamera" type="button"><span class="icon">📷</span>Camera</button>
-  <button class="nav-btn" data-view="chat" type="button"><span class="icon">💬</span>Chat</button>
-  <button class="nav-btn" data-view="saved" type="button"><span class="icon">🔖</span>Saved</button>
-  <button class="nav-btn" data-view="profile" type="button"><span class="icon">👤</span>Profile</button>
+  <button class="nav-btn active" data-view="search"><span class="icon">🏠</span>Home</button>
+  <button class="nav-btn" id="navCamera"><span class="icon">📷</span>Camera</button>
+  <button class="nav-btn" data-view="chat"><span class="icon">💬</span>Chat</button>
+  <button class="nav-btn" data-view="saved"><span class="icon">🔖</span>Saved</button>
+  <button class="nav-btn" data-view="profile"><span class="icon">👤</span>Profile</button>
 </nav>
 
-<!-- Camera dialog -->
 <dialog id="cameraDialog">
   <div class="cam-wrap">
-    <h3>Camera</h3>
+    <h3 style="margin-bottom:8px;color:var(--ink)">Camera</h3>
     <video id="cameraVideo" autoplay playsinline muted></video>
-    <div class="filter-bar" id="filterBar">
+    <div class="filter-bar">
       <button class="filter-btn active" data-filter="none">Normal</button>
       <button class="filter-btn" data-filter="grayscale(100%)">B&W</button>
       <button class="filter-btn" data-filter="sepia(80%)">Sepia</button>
-      <button class="filter-btn" data-filter="contrast(1.3) brightness(1.1)">Vivid</button>
-      <button class="filter-btn" data-filter="hue-rotate(180deg) saturate(1.4)">Neon</button>
-      <button class="filter-btn" data-filter="sepia(40%) contrast(1.2)">Vintage</button>
-      <button class="filter-btn" data-filter="blur(1.5px)">Soft</button>
+      <button class="filter-btn" data-filter="contrast(1.25) brightness(1.1)">Vivid</button>
+      <button class="filter-btn" data-filter="hue-rotate(160deg)">Neon</button>
     </div>
     <div class="cam-actions">
-      <button class="cam-flip" id="camFlip" type="button">🔄 Flip</button>
-      <button class="cam-cancel" id="camCancel" type="button">Cancel</button>
-      <button class="cam-capture" id="camCapture" type="button">Capture</button>
+      <button id="camFlip" style="background:#fff2f2;border:1px solid #f0d3d3;color:var(--ink)">Flip</button>
+      <button id="camCancel" style="background:#fff2f2;border:1px solid #f0d3d3">Cancel</button>
+      <button id="camCapture" style="background:var(--ink);color:#fff;border:0">Capture</button>
     </div>
   </div>
 </dialog>
 
 <script>
-const $ = (s) => document.querySelector(s);
+const $ = s => document.querySelector(s);
 
 const state = {
-  claudeKey: localStorage.getItem("omni_claude_key") || "",
-  youtubeKey: localStorage.getItem("omni_youtube_key") || "",
-  profileName: localStorage.getItem("omni_profile_name") || "",
-  scope: "all",
-  chatHistory: [],
+  groqKey: localStorage.getItem("omni_groq_key") || "",
+  systemPrompt: localStorage.getItem("omni_system_prompt") || "You are OMNI, a highly capable, truthful and helpful AI assistant. Be clear, direct and useful. When sources are provided, ground your answer in them and cite using [1], [2] etc.",
+  conversations: JSON.parse(localStorage.getItem("omni_conversations") || "[]"),
+  currentChatId: localStorage.getItem("omni_current_chat") || null,
+  searchHistory: JSON.parse(localStorage.getItem("omni_search_history") || "[]"),
+  saved: JSON.parse(localStorage.getItem("omni_saved") || "[]"),
   pendingImage: null,
   facingMode: "environment",
-  cameraStream: null,
   currentFilter: "none",
-  saved: JSON.parse(localStorage.getItem("omni_saved") || "[]"),
-  lastSources: null
+  cameraStream: null
 };
 
-// ---------- helpers ----------
-function escapeHTML(v=""){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));}
-function safeUrl(v=""){try{const u=new URL(String(v));return ["http:","https:"].includes(u.protocol)?u.href:"";}catch{return "";}}
-function isDirectFile(u=""){return /\.(pdf|docx?|xlsx?|pptx?|csv|txt|zip|epub)(\?|#|$)/i.test(u);}
-
-function renderMarkdown(text=""){
-  const lines=String(text).split(/\n+/);let html="",list=false;
-  for(const raw of lines){
-    const line=raw.trim();
-    if(!line){if(list){html+="</ul>";list=false;}continue;}
-    if(/^#{1,3}\s/.test(line)){if(list){html+="</ul>";list=false;}html+=`<h3>${escapeHTML(line.replace(/^#{1,3}\s/,""))}</h3>`;continue;}
-    if(/^[-*]\s/.test(line)){if(!list){html+="<ul>";list=true;}html+=`<li>${inline(line.replace(/^[-*]\s/,""))}</li>`;continue;}
-    if(list){html+="</ul>";list=false;}
-    html+=`<p>${inline(line)}</p>`;
-  }
-  if(list)html+="</ul>";
-  return html;
+function uid(){return "c_"+Date.now()+"_"+Math.random().toString(36).slice(2,6)}
+function saveAll(){
+  localStorage.setItem("omni_conversations",JSON.stringify(state.conversations));
+  localStorage.setItem("omni_current_chat",state.currentChatId||"");
+  localStorage.setItem("omni_search_history",JSON.stringify(state.searchHistory));
+  localStorage.setItem("omni_saved",JSON.stringify(state.saved));
 }
-function inline(text){
-  let safe=escapeHTML(text);
-  safe=safe.replace(/\[(\d+)\]/g,'<span class="cite">[$1]</span>');
-  safe=safe.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>");
-  return safe;
-}
+function escapeHTML(v=""){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderMarkdown(t=""){return escapeHTML(t).replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/\[(\d+)\]/g,'<span style="background:var(--bg);color:#fff;border-radius:4px;padding:0 4px;font-size:11px;">[$1]</span>').replace(/\n/g,"<br>")}
 
-// ---------- views ----------
 function setView(view){
-  ["searchView","chatView","savedView","profileView"].forEach(id=>{
-    $(`#${id}`).hidden = id !== view+"View" && !(view==="search" && id==="searchView");
-  });
+  ["search","chat","saved","profile"].forEach(v => $(`#${v}View`).hidden = v !== view);
   $("#chatComposer").hidden = view !== "chat";
-  document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
-  const nav = document.querySelector(`.nav-btn[data-view="${view}"]`);
-  if(nav) nav.classList.add("active");
-
-  if(view==="saved") renderSaved();
-  if(view==="chat") $("#chatInput").focus();
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+  const btn = document.querySelector(`.nav-btn[data-view="${view}"]`);
+  if(btn) btn.classList.add("active");
+  if(view==="chat"){renderChatList();loadCurrentChat()}
+  if(view==="saved")renderSaved();
+  if(view==="search")renderHistory();
 }
+document.querySelectorAll(".nav-btn[data-view]").forEach(btn => btn.addEventListener("click",()=>setView(btn.dataset.view)));
+$("#brandHome").addEventListener("click",e=>{e.preventDefault();setView("search")});
 
-document.querySelectorAll(".nav-btn[data-view]").forEach(btn=>{
-  btn.addEventListener("click",()=>setView(btn.dataset.view));
-});
-$("#brandHome").addEventListener("click",e=>{e.preventDefault();setView("search");});
-
-// ---------- profile ----------
-$("#profileName").value = state.profileName;
-$("#claudeKey").value = state.claudeKey;
-$("#youtubeKey").value = state.youtubeKey;
-if(state.claudeKey) $("#rememberKey").checked = true;
-if(state.youtubeKey) $("#rememberYt").checked = true;
-
-$("#saveProfileBtn").addEventListener("click",()=>{
-  state.profileName = $("#profileName").value.trim();
-  state.claudeKey = $("#claudeKey").value.trim();
-  state.youtubeKey = $("#youtubeKey").value.trim();
-  localStorage.setItem("omni_profile_name", state.profileName);
-  if($("#rememberKey").checked && state.claudeKey) localStorage.setItem("omni_claude_key", state.claudeKey);
-  else localStorage.removeItem("omni_claude_key");
-  if($("#rememberYt").checked && state.youtubeKey) localStorage.setItem("omni_youtube_key", state.youtubeKey);
-  else localStorage.removeItem("omni_youtube_key");
-  $("#saveProfileBtn").textContent = "Saved ✓";
-  setTimeout(()=>{$("#saveProfileBtn").textContent="Save";},1500);
-});
-
-// ---------- search ----------
-function scoreSource(s){
-  const name=String(s.source||"").toLowerCase();
-  let score=35;
-  if(s.type==="academic") score+=20;
-  if(/openalex|crossref|arxiv|doi/.test(name)) score+=18;
-  if(/wikipedia/.test(name)) score+=10;
-  if(s.authors) score+=6;
-  if(s.published) score+=5;
-  if(!s.snippet) score-=8;
-  return Math.max(0,Math.min(100,score));
+function newChat(){
+  const id=uid();
+  state.conversations.unshift({id,title:"New Chat",messages:[{role:"assistant",content:"New conversation ready. How can I help?"}]});
+  state.currentChatId=id;saveAll();setView("chat");
 }
+$("#newChatBtn").addEventListener("click",newChat);
 
-async function multiSourceSearch(query, deep, scope){
-  const limit = deep ? 8 : 5;
-  const results = [];
-  const tasks = [];
-  const want = (t) => scope==="all" || scope===t || (scope==="web" && t==="knowledge");
-
-  if(want("web")||want("knowledge")||scope==="all"){
-    tasks.push(fetch(`https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query)}&limit=${limit}&namespace=0&format=json&origin=*`)
-      .then(r=>r.json()).then(d=>{
-        (d[1]||[]).forEach((title,i)=>results.push({title,snippet:d[2]?.[i]||"",url:d[3]?.[i]||"",source:"Wikipedia",type:"knowledge"}));
-      }).catch(()=>{}));
-  }
-  if(want("academic")){
-    tasks.push(fetch(`https://api.openalex.org/works?search=${encodeURIComponent(query)}&per-page=${limit}&sort=relevance_score:desc`)
-      .then(r=>r.json()).then(d=>{
-        (d.results||[]).forEach(it=>results.push({
-          title:it.title||"Untitled",snippet:it.primary_location?.source?.display_name?`${it.primary_location.source.display_name} · cited by ${it.cited_by_count||0}`:`Cited by ${it.cited_by_count||0}`,
-          url:it.doi||it.primary_location?.landing_page_url||`https://openalex.org/${it.id?.split("/").pop()||""}`,
-          source:"OpenAlex",type:"academic",published:it.publication_date,
-          authors:(it.authorships||[]).slice(0,2).map(a=>a.author?.display_name).filter(Boolean).join(", ")
-        }));
-      }).catch(()=>{}));
-    tasks.push(fetch(`https://api.crossref.org/works?query.bibliographic=${encodeURIComponent(query)}&rows=${limit}`)
-      .then(r=>r.json()).then(d=>{
-        (d.message?.items||[]).forEach(it=>results.push({
-          title:it.title?.[0]||"Crossref record",snippet:it["container-title"]?.[0]||"Scholarly record",
-          url:it.URL||`https://doi.org/${it.DOI||""}`,source:"Crossref",type:"academic",
-          published:it.published?.["date-parts"]?.[0]?.join("-")
-        }));
-      }).catch(()=>{}));
-  }
-  if(want("media")){
-    tasks.push(fetch(`https://api.openverse.org/v1/images/?q=${encodeURIComponent(query)}&page_size=${limit}`)
-      .then(r=>r.json()).then(d=>{
-        (d.results||[]).forEach(it=>results.push({
-          title:it.title||"Untitled image",snippet:`${(it.license||"CC").toUpperCase()} · by ${it.creator||"unknown"}`,
-          url:it.foreign_landing_url||it.url,downloadUrl:it.url,thumb:it.thumbnail||it.url,
-          source:"Openverse",type:"media",license:it.license
-        }));
-      }).catch(()=>{}));
-  }
-  if(want("video") && state.youtubeKey){
-    tasks.push(fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=${limit}&q=${encodeURIComponent(query)}&key=${state.youtubeKey}`)
-      .then(r=>r.json()).then(d=>{
-        (d.items||[]).forEach(it=>results.push({
-          title:it.snippet?.title||"Untitled video",snippet:it.snippet?.channelTitle||"",
-          url:`https://www.youtube.com/watch?v=${it.id?.videoId}`,thumb:it.snippet?.thumbnails?.medium?.url,
-          source:"YouTube",type:"video"
-        }));
-      }).catch(()=>{}));
-  }
-
-  await Promise.allSettled(tasks);
-  const seen=new Set();
-  return results
-    .filter(r=>{if(!r.url||seen.has(r.url))return false;seen.add(r.url);return true;})
-    .map(r=>({...r,quality:scoreSource(r)}))
-    .sort((a,b)=>b.quality-a.quality)
-    .slice(0,limit*3)
-    .map((r,i)=>({...r,id:i+1}));
+function renderChatList(){
+  const list=$("#chatList");
+  if(state.conversations.length<=1){list.innerHTML="";return}
+  list.innerHTML=state.conversations.slice(0,5).map(c=>`
+    <div class="chat-item">
+      <div onclick="switchChat('${c.id}')" style="flex:1;cursor:pointer;font-weight:700;font-size:13px">${escapeHTML(c.title)}</div>
+      <button onclick="deleteChat('${c.id}')" style="background:none;border:none;color:#fff;font-size:16px">✕</button>
+    </div>`).join("");
 }
-
-function renderResults(sources){
-  const area=$("#resultsArea");
-  const filtered=sources.filter(s=>state.scope==="all"||s.type===state.scope||(state.scope==="web"&&s.type==="knowledge"));
-  if(!filtered.length){area.innerHTML='<p class="empty-note">No results for this tab.</p>';return;}
-
-  area.innerHTML=filtered.map(s=>{
-    const url=safeUrl(s.url);if(!url)return"";
-    const thumb=s.thumb?`<img class="thumb" src="${escapeHTML(safeUrl(s.thumb)||s.thumb)}" alt="" loading="lazy">`:"";
-    let actions=`<a href="${escapeHTML(url)}" target="_blank" rel="noopener">Open</a>`;
-    if(s.type==="media"&&s.downloadUrl){
-      actions+=`<a class="dl" href="#" data-url="${escapeHTML(safeUrl(s.downloadUrl))}" data-title="${escapeHTML(s.title)}">Save</a>`;
-    } else if(isDirectFile(url)){
-      actions+=`<a class="dl" href="${escapeHTML(url)}" download target="_blank" rel="noopener">Download</a>`;
-    }
-    return `<div class="result-card">${thumb}
-      <div class="result-top"><span>${escapeHTML(s.type)}</span><span>Q:${s.quality} · [${s.id}]</span></div>
-      <h3><a href="${escapeHTML(url)}" target="_blank" rel="noopener">${escapeHTML(s.title)}</a></h3>
-      <p>${escapeHTML(s.snippet||"")}${s.published?" · "+escapeHTML(s.published):""}${s.authors?" · "+escapeHTML(s.authors):""}</p>
-      <div class="result-actions">${actions}</div></div>`;
-  }).join("");
-
-  // bind save buttons
-  area.querySelectorAll("a.dl[data-url]").forEach(a=>{
-    a.addEventListener("click",e=>{
-      e.preventDefault();
-      saveItem(a.dataset.url, a.dataset.title || "Image");
-    });
-  });
+function switchChat(id){state.currentChatId=id;saveAll();loadCurrentChat()}
+function deleteChat(id){
+  state.conversations=state.conversations.filter(c=>c.id!==id);
+  if(state.currentChatId===id)state.currentChatId=state.conversations[0]?.id||null;
+  saveAll();renderChatList();loadCurrentChat();
 }
-
-document.querySelectorAll("#scopeTabs .tab").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    document.querySelectorAll("#scopeTabs .tab").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    state.scope=btn.dataset.scope;
-    if(state.lastSources) renderResults(state.lastSources);
-  });
-});
-
-// ---------- Claude streaming ----------
-async function streamClaude(systemPrompt, messages, onChunk){
-  if(!state.claudeKey) return null;
-  const response = await fetch("https://api.anthropic.com/v1/messages",{
-    method:"POST",
-    headers:{
-      "content-type":"application/json",
-      "x-api-key":state.claudeKey,
-      "anthropic-version":"2023-06-01",
-      "anthropic-dangerous-direct-browser-access":"true"
-    },
-    body:JSON.stringify({
-      model:"claude-3-5-sonnet-20241022",
-      max_tokens:1400,
-      system:systemPrompt,
-      messages,
-      stream:true
-    })
-  });
-  if(!response.ok){
-    const e=await response.json().catch(()=>({}));
-    throw new Error(e.error?.message||`API error (${response.status})`);
-  }
-  const reader=response.body.getReader();
-  const decoder=new TextDecoder();
-  let buffer="",full="";
-  while(true){
-    const {value,done}=await reader.read();
-    if(done) break;
-    buffer+=decoder.decode(value,{stream:true});
-    const lines=buffer.split(/\n/);
-    buffer=lines.pop()||"";
-    for(const line of lines){
-      if(!line.startsWith("data:")) continue;
-      const raw=line.slice(5).trim();
-      if(!raw||raw==="[DONE]") continue;
-      try{
-        const evt=JSON.parse(raw);
-        const piece=evt.delta?.text||"";
-        if(piece){full+=piece;onChunk?.(full);}
-      }catch{}
-    }
-  }
-  return full;
-}
-
-// ---------- Search submit ----------
-$("#searchForm").addEventListener("submit",async e=>{
-  e.preventDefault();
-  const query=$("#query").value.trim();
-  if(!query) return;
-  const deep=$("#deepSearch").checked;
-
-  $("#answerArea").innerHTML='<div class="answer-card"><span class="label">SEARCHING</span><div class="answer-body">Gathering sources…</div></div>';
-  $("#resultsArea").innerHTML="";
-
-  const sources=await multiSourceSearch(query,deep,state.scope);
-  state.lastSources=sources;
-  renderResults(sources);
-
-  if(!state.claudeKey){
-    $("#answerArea").innerHTML='<div class="answer-card"><span class="label">TIP</span><div class="answer-body">Add a Claude API key in Profile for an AI-written answer.</div></div>';
-    return;
-  }
-
-  $("#answerArea").innerHTML='<div class="answer-card"><span class="label">OMNI ANSWER</span><div class="answer-body" id="answerBody">Thinking…</div></div>';
-  const evidence=sources.map(s=>`[${s.id}] ${s.title} — ${s.snippet||""} (${s.url})`).join("\n");
-  const system="You are OMNI's search brain. Ground claims in the numbered sources, citing like [1]. Be concise and clear.";
-  const userText=`Question: ${query}\n\nSources:\n${evidence||"(none)"}\n\nGive a well-cited answer.`;
-
-  try{
-    await streamClaude(system,[{role:"user",content:userText}],partial=>{
-      $("#answerBody").innerHTML=renderMarkdown(partial);
-    });
-  }catch(err){
-    $("#answerBody").innerHTML=`Couldn't reach Claude: ${escapeHTML(err.message)}`;
-  }
-});
-
-// ---------- Chat ----------
-function renderChat(){
+function loadCurrentChat(){
+  const chat=state.conversations.find(c=>c.id===state.currentChatId);
+  if(!chat){newChat();return}
   const thread=$("#chatThread");
-  if(!state.chatHistory.length){
-    thread.innerHTML='<p class="empty-note">Say something, snap a photo, or use voice.</p>';
-    return;
-  }
-  thread.innerHTML=state.chatHistory.map(m=>{
-    const img=m.imageDataUrl?`<img src="${m.imageDataUrl}" alt="">`:"";
-    return `<div class="bubble ${m.role}">${img}${renderMarkdown(m.text)}</div>`;
+  thread.innerHTML=chat.messages.map(m=>{
+    const img=m.image?`<img src="${m.image}" alt="">`:"";
+    return `<div class="bubble ${m.role}">${img}${renderMarkdown(m.content)}</div>`;
   }).join("");
   thread.scrollTop=thread.scrollHeight;
 }
 
-function toAnthropicMessages(){
-  return state.chatHistory.map(m=>{
-    if(m.role==="user"&&m.imageBase64){
-      return {role:"user",content:[
-        {type:"image",source:{type:"base64",media_type:"image/jpeg",data:m.imageBase64}},
-        {type:"text",text:m.text}
-      ]};
-    }
-    return {role:m.role,content:m.text};
-  });
+function renderHistory(){
+  $("#historyBar").innerHTML=state.searchHistory.slice(0,8).map(h=>
+    `<button class="history-chip" onclick="runHistory('${escapeHTML(h)}')">${escapeHTML(h.slice(0,26))}</button>`
+  ).join("");
 }
+function runHistory(q){$("#query").value=q;doSearch(q)}
 
-async function sendChatMessage(text,speakBack=false){
-  if(!text&&!state.pendingImage) return;
-  const userMsg={
-    role:"user",
-    text:text||"What can you tell me about this?",
-    imageDataUrl:state.pendingImage?.dataUrl,
-    imageBase64:state.pendingImage?.base64
-  };
-  state.chatHistory.push(userMsg);
-  state.pendingImage=null;
-  $("#composerAttach").hidden=true;
-  $("#chatInput").value="";
-  renderChat();
+$("#searchForm").addEventListener("submit",e=>{e.preventDefault();doSearch($("#query").value.trim())});
 
-  if(!state.claudeKey){
-    state.chatHistory.push({role:"assistant",text:"Add a Claude API key in Profile to chat."});
-    renderChat();
-    return;
-  }
+async function doSearch(query){
+  if(!query)return;
+  if(/^https?:\/\//i.test(query))return summarizeURL(query);
 
-  state.chatHistory.push({role:"assistant",text:"…"});
-  renderChat();
+  state.searchHistory=[query,...state.searchHistory.filter(h=>h!==query)].slice(0,12);
+  saveAll();renderHistory();
+
+  $("#answerArea").innerHTML=`<div class="card"><div class="label">SEARCHING</div><div style="margin-top:8px">Gathering sources…</div></div>`;
+  $("#resultsArea").innerHTML="";
 
   try{
-    const system="You are OMNI, a helpful assistant. If an image is attached, use it. Be direct and clear.";
-    const full=await streamClaude(system,toAnthropicMessages(),partial=>{
-      state.chatHistory[state.chatHistory.length-1].text=partial;
-      renderChat();
-    });
-    state.chatHistory[state.chatHistory.length-1].text=full||"(no response)";
-    renderChat();
-    if(speakBack&&full){
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(new SpeechSynthesisUtterance(full));
+    const [wiki,openalex]=await Promise.all([
+      fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`).then(r=>r.ok?r.json():null).catch(()=>null),
+      fetch(`https://api.openalex.org/works?search=${encodeURIComponent(query)}&per-page=5`).then(r=>r.json()).catch(()=>({results:[]}))
+    ]);
+
+    let sources=[],context="";
+    if(wiki?.extract){
+      sources.push({id:1,title:wiki.title,snippet:wiki.extract.slice(0,260),url:wiki.content_urls?.desktop?.page});
+      context+=`[1] ${wiki.title}: ${wiki.extract}\n\n`;
     }
-  }catch(err){
-    state.chatHistory[state.chatHistory.length-1].text=`Error: ${err.message}`;
-    renderChat();
+    (openalex.results||[]).forEach((w,i)=>{
+      const id=sources.length+1;
+      sources.push({id,title:w.title||"Academic",snippet:`Cited by ${w.cited_by_count||0}`,url:w.doi||w.id});
+      context+=`[${id}] ${w.title}\n`;
+    });
+
+    let answerHtml="";
+    if(state.groqKey){
+      const answer=await askGroq(query,context);
+      if(answer){
+        answerHtml=`<div class="card">
+          <div class="label">OMNI ANSWER</div>
+          <div style="margin-top:8px;line-height:1.6">${renderMarkdown(answer)}</div>
+          <div class="answer-actions">
+            <button class="action-btn" onclick="copyText(\`${answer.replace(/`/g,'')}\`)">Copy</button>
+            <button class="action-btn" onclick="speakText(\`${answer.replace(/`/g,'').slice(0,500)}\`)">Listen</button>
+          </div>
+        </div>`;
+      }
+    }else{
+      answerHtml=`<div class="card"><div class="label">TIP</div><div style="margin-top:8px">Add your Groq API key in Profile for AI answers.</div></div>`;
+    }
+
+    $("#answerArea").innerHTML=answerHtml;
+    $("#resultsArea").innerHTML=sources.map(s=>`
+      <div class="card" style="padding:12px">
+        <div style="font-size:11px;color:var(--bg);font-weight:800">[${s.id}]</div>
+        <a href="${s.url||'#'}" target="_blank" style="color:var(--ink);font-weight:700;text-decoration:none">${escapeHTML(s.title)}</a>
+        <div style="font-size:13px;color:#555;margin-top:4px">${escapeHTML(s.snippet||"")}</div>
+      </div>`).join("") || `<div class="empty">No results</div>`;
+  }catch{
+    $("#answerArea").innerHTML=`<div class="card">Search failed</div>`;
   }
 }
 
-$("#chatSendBtn").addEventListener("click",()=>sendChatMessage($("#chatInput").value.trim()));
-$("#chatInput").addEventListener("keydown",e=>{
-  if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendChatMessage($("#chatInput").value.trim());}
-});
-
-// ---------- Voice ----------
-const SpeechImpl=window.SpeechRecognition||window.webkitSpeechRecognition;
-$("#navVoice")?.addEventListener("click",()=>{
-  if(!SpeechImpl){alert("Voice not supported");return;}
-  if(!window.isSecureContext){alert("Voice needs https or localhost");return;}
-  const rec=new SpeechImpl();
-  rec.lang=navigator.language||"en-US";
-  $("#navVoice").classList.add("listening");
-  rec.onresult=e=>{
-    const transcript=e.results[0][0].transcript;
-    setView("chat");
-    sendChatMessage(transcript,true);
-  };
-  rec.onerror=()=>$("#navVoice").classList.remove("listening");
-  rec.onend=()=>$("#navVoice").classList.remove("listening");
-  rec.start();
-});
-
-// ---------- Camera + Filters ----------
-async function openCamera(){
-  if(!window.isSecureContext){alert("Camera needs https or localhost");return;}
-  $("#cameraDialog").showModal();
-  await startStream();
+async function summarizeURL(url){
+  $("#answerArea").innerHTML=`<div class="card"><div class="label">READING</div><div style="margin-top:8px">Fetching page…</div></div>`;
+  try{
+    const res=await fetch("https://r.jina.ai/"+url);
+    const text=await res.text();
+    const clipped=text.slice(0,3800);
+    if(state.groqKey){
+      const answer=await askGroq("Summarize the following page clearly and thoroughly:\n\n"+clipped,"");
+      $("#answerArea").innerHTML=`<div class="card"><div class="label">SUMMARY</div><div style="margin-top:8px;line-height:1.6">${renderMarkdown(answer||"Failed")}</div></div>`;
+    }else{
+      $("#answerArea").innerHTML=`<div class="card"><div class="label">PREVIEW</div><div style="margin-top:8px;font-size:13px">${escapeHTML(clipped.slice(0,700))}…</div></div>`;
+    }
+  }catch{
+    $("#answerArea").innerHTML=`<div class="card">Could not read URL</div>`;
+  }
 }
-async function startStream(){
-  stopStream();
+
+async function askGroq(userContent, context=""){
+  if(!state.groqKey) return null;
+  try{
+    const res=await fetch("https://api.groq.com/openai/v1/chat/completions",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":`Bearer ${state.groqKey}`
+      },
+      body:JSON.stringify({
+        model:"llama-3.3-70b-versatile",
+        messages:[
+          {role:"system",content:state.systemPrompt},
+          {role:"user",content:context?`Context:\n${context}\n\nQuestion: ${userContent}`:userContent}
+        ],
+        temperature:0.6,
+        max_tokens:1200
+      })
+    });
+    if(!res.ok) return null;
+    const data=await res.json();
+    return data.choices?.[0]?.message?.content || null;
+  }catch{return null}
+}
+
+$("#chatSendBtn").addEventListener("click",sendChat);
+$("#chatInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendChat()}});
+
+async function sendChat(){
+  const text=$("#chatInput").value.trim();
+  if(!text&&!state.pendingImage)return;
+  const chat=state.conversations.find(c=>c.id===state.currentChatId);
+  if(!chat)return;
+
+  chat.messages.push({role:"user",content:text||"Describe this image",image:state.pendingImage?.dataUrl||null});
+  if(chat.title==="New Chat") chat.title=(text||"Image").slice(0,40);
+  state.pendingImage=null;
+  $("#composerAttach").style.display="none";
+  $("#chatInput").value="";
+  saveAll();loadCurrentChat();
+
+  if(!state.groqKey){
+    chat.messages.push({role:"assistant",content:"Please add your Groq API key in Profile."});
+    saveAll();loadCurrentChat();return;
+  }
+
+  const reply=await askGroq(text||"Describe the attached image");
+  chat.messages.push({role:"assistant",content:reply||"No response"});
+  saveAll();loadCurrentChat();
+}
+
+$("#navCamera").addEventListener("click",async()=>{
+  if(!window.isSecureContext)return alert("Use localhost or https");
+  $("#cameraDialog").showModal();
   try{
     state.cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:state.facingMode}});
     $("#cameraVideo").srcObject=state.cameraStream;
     applyFilter(state.currentFilter);
-  }catch{
-    alert("Couldn't access camera");
-    $("#cameraDialog").close();
-  }
-}
-function stopStream(){
-  state.cameraStream?.getTracks().forEach(t=>t.stop());
-  state.cameraStream=null;
-}
-function applyFilter(f){
-  state.currentFilter=f;
-  $("#cameraVideo").style.filter = f==="none" ? "none" : f;
-}
-
-$("#navCamera").addEventListener("click",openCamera);
-$("#camFlip").addEventListener("click",()=>{
-  state.facingMode=state.facingMode==="environment"?"user":"environment";
-  startStream();
+  }catch{alert("Camera denied");$("#cameraDialog").close()}
 });
-$("#camCancel").addEventListener("click",()=>{stopStream();$("#cameraDialog").close();});
-$("#cameraDialog").addEventListener("close",stopStream);
-
+function applyFilter(f){state.currentFilter=f;$("#cameraVideo").style.filter=f==="none"?"none":f}
 document.querySelectorAll(".filter-btn").forEach(btn=>{
   btn.addEventListener("click",()=>{
     document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    applyFilter(btn.dataset.filter);
+    btn.classList.add("active");applyFilter(btn.dataset.filter);
   });
 });
-
+$("#camFlip").addEventListener("click",()=>{state.facingMode=state.facingMode==="environment"?"user":"environment";$("#navCamera").click()});
+$("#camCancel").addEventListener("click",()=>{state.cameraStream?.getTracks().forEach(t=>t.stop());$("#cameraDialog").close()});
 $("#camCapture").addEventListener("click",()=>{
   const video=$("#cameraVideo");
   const canvas=document.createElement("canvas");
-  canvas.width=video.videoWidth||640;
-  canvas.height=video.videoHeight||480;
+  canvas.width=video.videoWidth||640;canvas.height=video.videoHeight||480;
   const ctx=canvas.getContext("2d");
   ctx.filter=state.currentFilter==="none"?"none":state.currentFilter;
   ctx.drawImage(video,0,0);
   const dataUrl=canvas.toDataURL("image/jpeg",0.9);
-
-  // save to Saved
-  saveItem(dataUrl, "Photo "+new Date().toLocaleTimeString());
-
-  // also attach to chat
-  state.pendingImage={dataUrl,base64:dataUrl.split(",")[1]};
-  stopStream();
-  $("#cameraDialog").close();
-  setView("chat");
-  $("#composerAttach").hidden=false;
-  $("#composerAttach").innerHTML=`<img src="${dataUrl}" alt=""> Photo attached`;
-  $("#chatInput").focus();
+  state.saved.unshift({url:dataUrl,title:"Photo "+new Date().toLocaleTimeString(),date:Date.now()});
+  state.pendingImage={dataUrl};saveAll();
+  state.cameraStream?.getTracks().forEach(t=>t.stop());
+  $("#cameraDialog").close();setView("chat");
+  $("#composerAttach").style.display="block";
+  $("#composerAttach").innerHTML=`<img src="${dataUrl}" style="width:40px;height:40px;border-radius:6px"> Photo attached`;
 });
 
-// ---------- Saved ----------
-function saveItem(url, title){
-  state.saved.unshift({url,title,date:Date.now()});
-  localStorage.setItem("omni_saved",JSON.stringify(state.saved.slice(0,50)));
-  alert("Saved!");
-}
 function renderSaved(){
-  const grid=$("#savedGrid");
-  const empty=$("#savedEmpty");
-  if(!state.saved.length){
-    grid.innerHTML="";
-    empty.hidden=false;
-    return;
-  }
+  const grid=$("#savedGrid"),empty=$("#savedEmpty");
+  if(!state.saved.length){grid.innerHTML="";empty.hidden=false;return}
   empty.hidden=true;
-  grid.innerHTML=state.saved.map(item=>`
-    <div class="saved-item">
-      <img src="${item.url}" alt="">
-      <div class="info">${escapeHTML(item.title)}</div>
-    </div>
-  `).join("");
+  grid.innerHTML=state.saved.map(s=>`<div class="saved-item"><img src="${s.url}"><div class="info">${escapeHTML(s.title)}</div></div>`).join("");
 }
 
-// init
+$("#groqKey").value=state.groqKey;
+$("#systemPrompt").value=state.systemPrompt;
+if(state.groqKey)$("#rememberKey").checked=true;
+
+$("#saveKeyBtn").addEventListener("click",()=>{
+  state.groqKey=$("#groqKey").value.trim();
+  if($("#rememberKey").checked)localStorage.setItem("omni_groq_key",state.groqKey);
+  else localStorage.removeItem("omni_groq_key");
+  alert("Groq key saved");
+});
+$("#savePromptBtn").addEventListener("click",()=>{
+  state.systemPrompt=$("#systemPrompt").value.trim()||state.systemPrompt;
+  localStorage.setItem("omni_system_prompt",state.systemPrompt);
+  alert("Prompt saved");
+});
+$("#exportChatBtn").addEventListener("click",()=>{
+  const chat=state.conversations.find(c=>c.id===state.currentChatId);
+  if(!chat)return;
+  const text=chat.messages.map(m=>`${m.role.toUpperCase()}: ${m.content}`).join("\n\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([text],{type:"text/plain"}));
+  a.download="omni-chat.txt";a.click();
+});
+$("#clearDataBtn").addEventListener("click",()=>{if(confirm("Clear everything?")){localStorage.clear();location.reload()}});
+
+function copyText(t){navigator.clipboard.writeText(t)}
+function speakText(t){if(!window.speechSynthesis)return;window.speechSynthesis.cancel();window.speechSynthesis.speak(new SpeechSynthesisUtterance(t))}
+
+if(!state.conversations.length)newChat();
+else if(!state.currentChatId)state.currentChatId=state.conversations[0].id;
 setView("search");
+renderHistory();
 </script>
 </body>
 </html>
