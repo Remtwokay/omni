@@ -3,386 +3,457 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#d1001f">
-<title>OMNI — Maximum Browser Edition</title>
+<title>OMNI</title>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
 :root {
-  --bg: #d1001f;
-  --bg-deep: #a3001a;
-  --ink: #7a0012;
-  --line: rgba(255,255,255,.28);
-  --text-dark: #23090b;
-  --muted: #ffd9dc;
-  --shadow: 0 20px 50px rgba(0,0,0,.28);
-  --nav-h: calc(64px + env(safe-area-inset-bottom, 0px));
+  --bg: #c4001a;
+  --bg-deep: #8f0014;
+  --ink: #5c000d;
+  --line: rgba(255,255,255,.22);
+  --text: #ffffff;
+  --muted: #ffd5d9;
+  --card: #ffffff;
+  --dark: #1a0507;
+  --nav-h: calc(62px + env(safe-area-inset-bottom, 0px));
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{
   font-family:Inter,system-ui,-apple-system,sans-serif;
-  background:radial-gradient(circle at 10% -10%,#ff2f47 0,transparent 40rem),
-             radial-gradient(circle at 100% 10%,var(--bg-deep) 0,transparent 40rem),var(--bg);
-  color:#fff;min-height:100vh;padding-bottom:var(--nav-h);
+  background:radial-gradient(circle at 10% -20%,#ff3b55 0,transparent 40%),var(--bg);
+  color:var(--text);min-height:100vh;padding-bottom:var(--nav-h);
 }
-button,input,textarea,select{font:inherit}button{cursor:pointer}
+button,input,textarea{font:inherit}button{cursor:pointer}
 [hidden]{display:none!important}
-.top-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;position:sticky;top:0;background:rgba(163,0,26,.85);backdrop-filter:blur(12px);z-index:30}
-.brand{display:flex;align-items:center;gap:8px;font-weight:900;letter-spacing:2px;text-decoration:none;color:#fff}
-.brand-mark{width:28px;height:28px;border-radius:8px;background:#fff;color:var(--bg);display:grid;place-items:center;font-weight:900}
-.shell{max-width:860px;margin:0 auto;padding:16px}
-.hero{text-align:center;padding:6px 0 16px}
-.hero h1{font-size:clamp(24px,5.5vw,32px);margin-bottom:6px}
-.hero p{color:var(--muted);font-size:13px}
-.search-form{background:#fff;border-radius:24px;padding:8px;box-shadow:var(--shadow)}
-#query{width:100%;border:0;outline:0;background:transparent;color:var(--text-dark);font-size:16px;font-weight:600;padding:12px 14px;resize:none;min-height:52px}
-.search-row{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #f0d3d3;padding:8px 10px 4px;gap:8px;flex-wrap:wrap}
-.go-btn{background:var(--ink);color:#fff;border:0;border-radius:12px;padding:9px 16px;font-weight:800}
-.tabs{display:flex;gap:8px;overflow-x:auto;margin:12px 0}
-.tab{background:rgba(255,255,255,.14);border:0;color:#fff;padding:7px 13px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
-.tab.active{background:#fff;color:var(--bg)}
-.card{background:#fff;color:var(--text-dark);border-radius:16px;padding:16px;margin-bottom:12px}
-.card .label{color:var(--bg);font-size:11px;font-weight:900;letter-spacing:.4px}
-.answer-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
-.action-btn{background:#fff2f2;border:1px solid #f0d3d3;color:var(--ink);padding:6px 11px;border-radius:10px;font-size:12px;font-weight:700}
-.history-bar{display:flex;gap:8px;overflow-x:auto;margin:10px 0}
-.history-chip{background:rgba(0,0,0,.22);border:none;color:#fff;padding:5px 11px;border-radius:16px;font-size:12px;white-space:nowrap}
-.chat-thread{display:flex;flex-direction:column;gap:10px;min-height:48vh;padding-bottom:12px}
-.bubble{max-width:92%;padding:12px 14px;border-radius:16px;font-size:14px;line-height:1.55}
-.bubble.user{align-self:flex-end;background:#fff;color:var(--text-dark)}
-.bubble.assistant{align-self:flex-start;background:rgba(255,255,255,.13);border:1px solid var(--line)}
-.bubble img{max-width:180px;border-radius:10px;display:block;margin-bottom:8px}
-.bubble .md pre{background:#1e1e1e;color:#f0f0f0;padding:10px;border-radius:8px;overflow-x:auto;font-size:13px;margin:8px 0}
-.bubble .md code{background:rgba(0,0,0,.08);padding:2px 5px;border-radius:4px;font-size:13px}
-.followups{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.followups button{background:rgba(255,255,255,.18);border:1px solid var(--line);color:#fff;padding:5px 10px;border-radius:12px;font-size:12px}
-.chat-composer{position:fixed;left:0;right:0;bottom:var(--nav-h);background:rgba(163,0,26,.95);backdrop-filter:blur(10px);padding:10px 14px;display:flex;gap:8px;align-items:flex-end;border-top:1px solid var(--line);z-index:25}
-.chat-composer textarea{flex:1;border-radius:14px;border:0;padding:10px 12px;min-height:42px;max-height:120px;resize:none}
-.send-btn,.icon-btn{background:#fff;color:var(--bg);border:0;border-radius:14px;padding:10px 14px;font-weight:900}
-.icon-btn{padding:10px 12px;font-size:16px}
-.saved-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
-.saved-item{background:rgba(255,255,255,.12);border-radius:14px;overflow:hidden;position:relative}
-.saved-item img{width:100%;height:120px;object-fit:cover;display:block}
-.saved-item .info{padding:8px;font-size:12px}
-.saved-item .del{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);border:0;color:#fff;border-radius:50%;width:24px;height:24px}
-.profile-card{background:#fff;color:var(--text-dark);border-radius:16px;padding:16px;margin-bottom:12px}
-.profile-card h2{font-size:15px;margin-bottom:10px;color:var(--ink)}
-.profile-card label{display:block;font-size:12px;font-weight:700;margin:10px 0 4px}
-.profile-card input,.profile-card textarea,.profile-card select{width:100%;border:1px solid #f2c9c9;background:#fff2f2;border-radius:8px;padding:9px 10px;color:var(--text-dark)}
-.save-btn{margin-top:12px;background:var(--ink);color:#fff;border:0;border-radius:10px;padding:9px 16px;font-weight:800;width:100%}
-.bottom-nav{position:fixed;left:0;right:0;bottom:0;background:rgba(163,0,26,.95);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:8px 4px calc(8px + env(safe-area-inset-bottom));z-index:40}
-.nav-btn{background:none;border:0;color:#fff;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:700;padding:4px 8px;border-radius:10px;opacity:.75}
-.nav-btn.active{opacity:1;background:rgba(255,255,255,.18)}
-.nav-btn .icon{font-size:20px}
-dialog{border:0;border-radius:16px;padding:0;max-width:420px;width:92%}
-dialog::backdrop{background:rgba(0,0,0,.65)}
-.cam-wrap{background:#fff;color:var(--text-dark);border-radius:16px;padding:16px}
-#cameraVideo{width:100%;border-radius:10px;background:#000;max-height:250px;object-fit:cover}
-.filter-bar{display:flex;gap:6px;overflow-x:auto;margin:10px 0}
-.filter-btn{background:#fff2f2;border:1px solid #f0d3d3;color:var(--ink);padding:6px 11px;border-radius:16px;font-size:11px;font-weight:700;white-space:nowrap}
-.filter-btn.active{background:var(--bg);color:#fff}
-.cam-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
-.cam-actions button{border-radius:10px;padding:8px 14px;font-weight:800;font-size:13px}
+
+/* Top bar */
+.top{position:sticky;top:0;z-index:40;background:rgba(143,0,20,.92);backdrop-filter:blur(12px);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:8px;font-weight:900;letter-spacing:1.5px;font-size:18px}
+.brand span{width:28px;height:28px;background:#fff;color:var(--bg);border-radius:8px;display:grid;place-items:center;font-weight:900}
+
+.shell{max-width:820px;margin:0 auto;padding:16px}
+
+/* Search */
+.search-box{background:#fff;border-radius:18px;padding:8px;box-shadow:0 12px 30px rgba(0,0,0,.25);margin-bottom:16px}
+#mainInput{width:100%;border:0;outline:0;padding:12px 14px;font-size:16px;font-weight:600;color:var(--dark);resize:none;min-height:48px}
+.search-actions{display:flex;justify-content:space-between;align-items:center;padding:6px 8px 2px;border-top:1px solid #f0d0d0}
+.go{background:var(--ink);color:#fff;border:0;border-radius:12px;padding:8px 16px;font-weight:800}
+
+/* Trending */
+.trending{margin-bottom:18px}
+.trending h3{font-size:13px;font-weight:800;margin-bottom:10px;opacity:.9}
+.trend-list{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.trend{background:rgba(0,0,0,.22);border:none;color:#fff;padding:7px 12px;border-radius:20px;font-size:12px;white-space:nowrap;font-weight:600}
+
+/* Cards */
+.card{background:var(--card);color:var(--dark);border-radius:16px;padding:16px;margin-bottom:12px}
+.card .label{font-size:11px;font-weight:900;color:var(--bg);letter-spacing:.3px}
+.answer{line-height:1.6;margin-top:8px}
+.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.action{background:#fff0f0;border:1px solid #f0d0d0;color:var(--ink);padding:6px 11px;border-radius:10px;font-size:12px;font-weight:700}
+
+/* Chat */
+.chat-thread{display:flex;flex-direction:column;gap:10px;min-height:50vh;padding-bottom:12px}
+.bubble{max-width:88%;padding:11px 14px;border-radius:16px;font-size:14px;line-height:1.5}
+.bubble.user{align-self:flex-end;background:#fff;color:var(--dark)}
+.bubble.bot{align-self:flex-start;background:rgba(255,255,255,.14);border:1px solid var(--line)}
+.composer{position:fixed;left:0;right:0;bottom:var(--nav-h);background:rgba(143,0,20,.95);backdrop-filter:blur(10px);padding:10px 14px;display:flex;gap:8px;border-top:1px solid var(--line);z-index:30}
+.composer textarea{flex:1;border:0;border-radius:14px;padding:10px 12px;min-height:42px;max-height:100px;resize:none}
+.send{background:#fff;color:var(--bg);border:0;border-radius:14px;padding:10px 14px;font-weight:900}
+
+/* Camera */
+.cam-wrap{position:relative;max-width:480px;margin:0 auto}
+#camVideo{width:100%;border-radius:14px;background:#000;display:block}
+.filters{display:flex;gap:6px;overflow-x:auto;margin:12px 0}
+.fbtn{background:rgba(255,255,255,.15);border:0;color:#fff;padding:6px 12px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
+.fbtn.active{background:#fff;color:var(--bg)}
+.cam-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+
+/* Creative */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+.item{background:rgba(255,255,255,.12);border-radius:14px;overflow:hidden}
+.item img{width:100%;height:120px;object-fit:cover;display:block}
+.item .info{padding:8px;font-size:12px}
+
+/* Bottom Nav */
+.bottom{position:fixed;left:0;right:0;bottom:0;background:rgba(143,0,20,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:7px 4px calc(7px + env(safe-area-inset-bottom));z-index:50}
+.nav{background:none;border:0;color:#fff;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;font-weight:700;padding:4px 8px;border-radius:10px;opacity:.7}
+.nav.active{opacity:1;background:rgba(255,255,255,.18)}
+.nav .ico{font-size:18px}
+
 .empty{text-align:center;padding:40px 16px;color:var(--muted);font-size:14px}
-.chat-item{background:rgba(255,255,255,.12);border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px}
-.typing{display:inline-flex;gap:4px;padding:8px 0}
-.typing span{width:7px;height:7px;background:#fff;border-radius:50%;animation:bounce 1.2s infinite}
-.typing span:nth-child(2){animation-delay:.15s}
-.typing span:nth-child(3){animation-delay:.3s}
-@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+.profile-card{background:#fff;color:var(--dark);border-radius:16px;padding:16px;margin-bottom:12px}
+.profile-card h3{font-size:15px;margin-bottom:10px;color:var(--ink)}
+.profile-card input,.profile-card textarea{width:100%;border:1px solid #f0c9c9;background:#fff5f5;border-radius:8px;padding:9px 10px;color:var(--dark);margin-bottom:8px}
+.save{width:100%;background:var(--ink);color:#fff;border:0;border-radius:10px;padding:10px;font-weight:800;margin-top:6px}
 </style>
 </head>
 <body>
-<div class="top-bar">
-  <a class="brand" href="#" id="brandHome"><span class="brand-mark">O</span> OMNI</a>
-  <button id="newChatBtn" style="background:rgba(255,255,255,.15);border:1px solid var(--line);color:#fff;border-radius:20px;padding:6px 12px;font-size:12px;font-weight:700;">+ New</button>
+
+<div class="top">
+  <div class="brand"><span>O</span> OMNI</div>
+  <button id="newBtn" style="background:rgba(255,255,255,.15);border:1px solid var(--line);color:#fff;border-radius:20px;padding:6px 12px;font-size:12px;font-weight:700">+ New</button>
 </div>
+
 <div class="shell">
-<section id="searchView">
-  <div class="hero">
-    <h1>OMNI — Maximum Browser</h1>
-    <p>Strongest client-side version possible</p>
-  </div>
-  <form id="searchForm" class="search-form">
-    <textarea id="query" placeholder="Ask anything or paste a URL…" rows="2"></textarea>
-    <div class="search-row">
-      <label style="font-size:12px;color:#8a5a5f;display:flex;align-items:center;gap:6px;">
-        <input type="checkbox" id="deepSearch"> Deep Research
-      </label>
-      <button class="go-btn" type="submit">Search</button>
+
+  <!-- HOME -->
+  <section id="homeView">
+    <div class="search-box">
+      <textarea id="mainInput" placeholder="Ask OMNI anything or search..." rows="1"></textarea>
+      <div class="search-actions">
+        <span style="font-size:12px;color:#8a5a5f">AI + Search</span>
+        <button class="go" id="goBtn">Go</button>
+      </div>
     </div>
-  </form>
-  <div class="history-bar" id="historyBar"></div>
-  <div id="answerArea"></div>
-  <div id="resultsArea"></div>
-</section>
-<section id="chatView" hidden>
-  <div id="chatList"></div>
-  <div id="chatThread" class="chat-thread"><div class="empty">Start chatting with OMNI</div></div>
-</section>
-<section id="savedView" hidden>
-  <h2 style="margin-bottom:14px;">Saved</h2>
-  <div id="savedGrid" class="saved-grid"></div>
-  <div id="savedEmpty" class="empty">No saved items</div>
-</section>
-<section id="profileView" hidden>
-  <div class="profile-card">
-    <h2>Groq API Key (Required)</h2>
-    <input type="password" id="groqKey" placeholder="gsk_...">
-    <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-weight:500;">
-      <input type="checkbox" id="rememberKey"> Remember on this device
-    </label>
-    <button class="save-btn" id="saveKeyBtn">Save Key</button>
-    <p style="font-size:12px;color:#8a5a5f;margin-top:8px;">Free key → console.groq.com</p>
-  </div>
-  <div class="profile-card">
-    <h2>Model</h2>
-    <select id="modelSelect">
-      <option value="llama-3.3-70b-versatile">Llama 3.3 70B (Recommended)</option>
-      <option value="llama-3.1-8b-instant">Llama 3.1 8B (Fast)</option>
-      <option value="gemma2-9b-it">Gemma 2 9B</option>
-      <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
-    </select>
-  </div>
-  <div class="profile-card">
-    <h2>System Prompt</h2>
-    <textarea id="systemPrompt" rows="5"></textarea>
-    <button class="save-btn" id="savePromptBtn">Save Prompt</button>
-  </div>
-  <div class="profile-card">
-    <button class="save-btn" id="exportChatBtn">Export Chat</button>
-    <button class="save-btn" style="background:#b91c1c;margin-top:8px;" id="clearDataBtn">Clear All Data</button>
-  </div>
-</section>
+
+    <div class="trending">
+      <h3>Trending & Important</h3>
+      <div class="trend-list" id="trendList"></div>
+    </div>
+
+    <div id="homeResult"></div>
+  </section>
+
+  <!-- CHAT -->
+  <section id="chatView" hidden>
+    <div id="chatThread" class="chat-thread">
+      <div class="empty">Start a conversation with OMNI</div>
+    </div>
+  </section>
+
+  <!-- CAMERA -->
+  <section id="cameraView" hidden>
+    <div class="card" style="background:transparent;border:0;padding:0">
+      <div class="cam-wrap">
+        <video id="camVideo" autoplay playsinline muted></video>
+      </div>
+      <div class="filters" id="filters">
+        <button class="fbtn active" data-f="none">Normal</button>
+        <button class="fbtn" data-f="grayscale(100%)">B&W</button>
+        <button class="fbtn" data-f="sepia(80%)">Sepia</button>
+        <button class="fbtn" data-f="contrast(1.2) brightness(1.1)">Vivid</button>
+        <button class="fbtn" data-f="hue-rotate(160deg)">Neon</button>
+      </div>
+      <div class="cam-btns">
+        <button class="go" id="startCam">Start Camera</button>
+        <button class="action" id="flipCam" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid var(--line)">Flip</button>
+        <button class="action" id="captureCam" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid var(--line)">Capture</button>
+        <button class="action" id="stopCam" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid var(--line)" hidden>Stop</button>
+      </div>
+      <div id="camStatus" style="text-align:center;margin-top:10px;font-size:13px;color:var(--muted)"></div>
+    </div>
+  </section>
+
+  <!-- CREATIVE -->
+  <section id="creativeView" hidden>
+    <div class="card">
+      <div class="label">IMAGE GENERATION</div>
+      <input id="imgPrompt" placeholder="Describe an image..." style="width:100%;margin:10px 0;padding:10px;border-radius:10px;border:1px solid #f0c9c9">
+      <button class="go" id="genImg">Generate</button>
+    </div>
+    <div class="grid" id="imgGrid"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="settingsView" hidden>
+    <div class="profile-card">
+      <h3>Groq API Key</h3>
+      <input type="password" id="apiKey" placeholder="gsk_...">
+      <button class="save" id="saveKey">Save Key</button>
+      <p style="font-size:12px;color:#8a5a5f;margin-top:8px">Get a free key at console.groq.com</p>
+    </div>
+    <div class="profile-card">
+      <h3>System Style</h3>
+      <textarea id="sysPrompt" rows="3">You are OMNI, a helpful, clear and capable AI assistant.</textarea>
+      <button class="save" id="savePrompt">Save</button>
+    </div>
+    <div class="profile-card">
+      <button class="save" id="clearAll" style="background:#b91c1c">Clear All Data</button>
+    </div>
+  </section>
 </div>
-<div class="chat-composer" id="chatComposer" hidden>
-  <div style="flex:1">
-    <div id="composerAttach" style="font-size:12px;margin-bottom:4px;display:none"></div>
-    <textarea id="chatInput" placeholder="Message OMNI…" rows="1"></textarea>
-  </div>
-  <button class="icon-btn" id="micBtn" title="Voice">🎤</button>
-  <button class="icon-btn" id="imgGenBtn" title="Generate Image">🎨</button>
-  <button class="send-btn" id="chatSendBtn">Send</button>
+
+<!-- Chat Composer -->
+<div class="composer" id="composer" hidden>
+  <textarea id="chatInput" placeholder="Message OMNI..." rows="1"></textarea>
+  <button class="send" id="chatSend">Send</button>
 </div>
-<nav class="bottom-nav">
-  <button class="nav-btn active" data-view="search"><span class="icon">🏠</span>Home</button>
-  <button class="nav-btn" id="navCamera"><span class="icon">📷</span>Camera</button>
-  <button class="nav-btn" data-view="chat"><span class="icon">💬</span>Chat</button>
-  <button class="nav-btn" data-view="saved"><span class="icon">🔖</span>Saved</button>
-  <button class="nav-btn" data-view="profile"><span class="icon">👤</span>Profile</button>
+
+<!-- Bottom Nav -->
+<nav class="bottom">
+  <button class="nav active" data-v="home"><span class="ico">🏠</span>Home</button>
+  <button class="nav" data-v="chat"><span class="ico">💬</span>Chat</button>
+  <button class="nav" data-v="camera"><span class="ico">📷</span>Camera</button>
+  <button class="nav" data-v="creative"><span class="ico">🎨</span>Creative</button>
+  <button class="nav" data-v="settings"><span class="ico">⚙️</span>Settings</button>
 </nav>
-<dialog id="cameraDialog">
-  <div class="cam-wrap">
-    <h3 style="margin-bottom:8px;color:var(--ink)">Camera</h3>
-    <video id="cameraVideo" autoplay playsinline muted></video>
-    <div class="filter-bar">
-      <button class="filter-btn active" data-filter="none">Normal</button>
-      <button class="filter-btn" data-filter="grayscale(100%)">B&W</button>
-      <button class="filter-btn" data-filter="sepia(80%)">Sepia</button>
-      <button class="filter-btn" data-filter="contrast(1.25) brightness(1.1)">Vivid</button>
-    </div>
-    <div class="cam-actions">
-      <button id="camFlip" style="background:#fff2f2;border:1px solid #f0d3d3;color:var(--ink)">Flip</button>
-      <button id="camCancel" style="background:#fff2f2;border:1px solid #f0d3d3">Cancel</button>
-      <button id="camCapture" style="background:var(--ink);color:#fff;border:0">Capture</button>
-    </div>
-  </div>
-</dialog>
+
 <script>
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
-const DEFAULT_PROMPT = `You are OMNI, a highly capable, truth-seeking, and maximally helpful AI. 
-Be clear, direct, and precise. Prefer truth over comfort. 
-When sources are provided, ground your answer in them and cite using [1], [2], etc.
-Current date: ${new Date().toDateString()}.
-You can reason step-by-step when needed. Keep answers useful and structured.`;
+
 const state = {
-  groqKey: localStorage.getItem("omni_groq_key") || "",
-  model: localStorage.getItem("omni_model") || "llama-3.3-70b-versatile",
-  systemPrompt: localStorage.getItem("omni_system_prompt") || DEFAULT_PROMPT,
-  conversations: JSON.parse(localStorage.getItem("omni_conversations") || "[]"),
-  currentChatId: localStorage.getItem("omni_current_chat") || null,
-  searchHistory: JSON.parse(localStorage.getItem("omni_search_history") || "[]"),
-  saved: JSON.parse(localStorage.getItem("omni_saved") || "[]"),
-  pendingImage: null,
-  facingMode: "environment",
-  currentFilter: "none",
-  cameraStream: null,
-  isStreaming: false
+  key: localStorage.getItem("omni_key") || "",
+  prompt: localStorage.getItem("omni_prompt") || "You are OMNI, a helpful, clear and capable AI assistant. Be direct and useful.",
+  chats: JSON.parse(localStorage.getItem("omni_chats") || "[]"),
+  current: null,
+  images: JSON.parse(localStorage.getItem("omni_images") || "[]"),
+  camStream: null,
+  facing: "user",
+  filter: "none"
 };
-function uid(){return "c_"+Date.now()+"_"+Math.random().toString(36).slice(2,6)}
-function saveAll(){
-  localStorage.setItem("omni_conversations",JSON.stringify(state.conversations));
-  localStorage.setItem("omni_current_chat",state.currentChatId||"");
-  localStorage.setItem("omni_search_history",JSON.stringify(state.searchHistory));
-  localStorage.setItem("omni_saved",JSON.stringify(state.saved));
-  localStorage.setItem("omni_model",state.model);
+
+function save() {
+  localStorage.setItem("omni_chats", JSON.stringify(state.chats));
+  localStorage.setItem("omni_images", JSON.stringify(state.images));
+  localStorage.setItem("omni_key", state.key);
+  localStorage.setItem("omni_prompt", state.prompt);
 }
-function escapeHTML(v=""){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function renderMarkdown(t=""){if(window.marked){marked.setOptions({breaks:true,gfm:true});return marked.parse(t)}return escapeHTML(t).replace(/\n/g,"<br>")}
-function setView(view){
-  ["search","chat","saved","profile"].forEach(v=>$(`#${v}View`).hidden=v!==view);
-  $("#chatComposer").hidden=view!=="chat";
-  $$(".nav-btn").forEach(b=>b.classList.remove("active"));
-  const btn=document.querySelector(`.nav-btn[data-view="${view}"]`);
-  if(btn)btn.classList.add("active");
-  if(view==="chat"){renderChatList();loadCurrentChat()}
-  if(view==="saved")renderSaved();
-  if(view==="search")renderHistory();
+
+function uid(){ return Date.now() + "_" + Math.random().toString(36).slice(2,6); }
+
+function setView(v){
+  ["home","chat","camera","creative","settings"].forEach(x => {
+    $(`#${x}View`).hidden = x !== v;
+  });
+  $("#composer").hidden = v !== "chat";
+  $$(".nav").forEach(n => n.classList.toggle("active", n.dataset.v === v));
+  if(v === "chat") renderChat();
+  if(v === "creative") renderImages();
+  if(v === "camera" && !state.camStream) {}
+  if(v !== "camera") stopCam();
 }
-$$(".nav-btn[data-view]").forEach(btn=>btn.addEventListener("click",()=>setView(btn.dataset.view)));
-$("#brandHome").addEventListener("click",e=>{e.preventDefault();setView("search")});
+
+$$(".nav").forEach(n => n.onclick = () => setView(n.dataset.v));
+
+// Trending (simple static + live feel)
+const trends = [
+  "Global climate updates",
+  "AI regulation news",
+  "Space exploration",
+  "Health breakthroughs",
+  "Economic shifts",
+  "Tech innovation",
+  "Sports highlights",
+  "Science discoveries"
+];
+$("#trendList").innerHTML = trends.map(t => 
+  `<button class="trend" onclick="runQuery('${t}')">${t}</button>`
+).join("");
+
+window.runQuery = (q) => {
+  $("#mainInput").value = q;
+  doMain();
+};
+
+// Main Search / AI
+$("#goBtn").onclick = doMain;
+$("#mainInput").addEventListener("keydown", e => {
+  if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); doMain(); }
+});
+
+async function doMain(){
+  const q = $("#mainInput").value.trim();
+  if(!q) return;
+
+  $("#homeResult").innerHTML = `<div class="card"><div class="label">WORKING</div><div style="margin-top:8px">Thinking...</div></div>`;
+
+  // Simple tool detection
+  if(/calculate|what is \d|math/i.test(q)){
+    const expr = q.replace(/[^0-9+\-*/().\s]/g,"");
+    try{
+      const res = Function(`"use strict";return (${expr})`)();
+      $("#homeResult").innerHTML = `<div class="card"><div class="label">RESULT</div><div class="answer" style="font-size:22px;font-weight:800">${res}</div></div>`;
+      return;
+    }catch{}
+  }
+
+  // Search sources
+  let context = "";
+  try{
+    const wiki = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(q)}`).then(r=>r.ok?r.json():null).catch(()=>null);
+    if(wiki?.extract) context += wiki.extract + "\n\n";
+  }catch{}
+
+  if(state.key){
+    const answer = await askAI(q, context);
+    $("#homeResult").innerHTML = `
+      <div class="card">
+        <div class="label">OMNI</div>
+        <div class="answer">${marked.parse(answer || "No response")}</div>
+        <div class="actions">
+          <button class="action" onclick="navigator.clipboard.writeText(\`${(answer||"").replace(/`/g,"")}\`)">Copy</button>
+        </div>
+      </div>`;
+  } else {
+    $("#homeResult").innerHTML = `
+      <div class="card">
+        <div class="label">RESULT</div>
+        <div class="answer">${context ? context.slice(0,600)+"..." : "Add your free Groq API key in Settings for full AI answers."}</div>
+      </div>`;
+  }
+}
+
+async function askAI(user, context=""){
+  if(!state.key) return null;
+  try{
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":`Bearer ${state.key}`
+      },
+      body:JSON.stringify({
+        model:"llama-3.3-70b-versatile",
+        messages:[
+          {role:"system",content:state.prompt},
+          {role:"user",content: context ? `Context:\n${context}\n\nQuestion: ${user}` : user}
+        ],
+        temperature:0.6,
+        max_tokens:1024
+      })
+    });
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content || null;
+  }catch{ return null; }
+}
+
+// Chat
 function newChat(){
-  const id=uid();
-  state.conversations.unshift({id,title:"New Chat",messages:[{role:"assistant",content:"Ready. What do you want to know or build?"}]});
-  state.currentChatId=id;saveAll();setView("chat");
+  const id = uid();
+  state.chats.unshift({id, title:"New Chat", messages:[]});
+  state.current = id;
+  save();
+  setView("chat");
+  renderChat();
 }
-$("#newChatBtn").addEventListener("click",newChat);
-function renderChatList(){
-  const list=$("#chatList");
-  if(state.conversations.length<=1){list.innerHTML="";return}
-  list.innerHTML=state.conversations.slice(0,8).map(c=>`
-    <div class="chat-item">
-      <div onclick="switchChat('${c.id}')" style="flex:1;cursor:pointer;font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHTML(c.title)}</div>
-      <button onclick="deleteChat('${c.id}')" style="background:none;border:none;color:#fff;font-size:16px">✕</button>
-    </div>`).join("");
-}
-window.switchChat=id=>{state.currentChatId=id;saveAll();loadCurrentChat()};
-window.deleteChat=id=>{if(!confirm("Delete chat?"))return;state.conversations=state.conversations.filter(c=>c.id!==id);if(state.currentChatId===id)state.currentChatId=state.conversations[0]?.id||null;saveAll();renderChatList();loadCurrentChat()};
-function loadCurrentChat(){
-  const chat=state.conversations.find(c=>c.id===state.currentChatId);
-  if(!chat){newChat();return}
-  const thread=$("#chatThread");
-  thread.innerHTML=chat.messages.map((m,idx)=>{
-    const img=m.image?`<img src="${m.image}" alt="">`:"";
-    const actions=m.role==="assistant"?`<div class="answer-actions" style="margin-top:8px">
-      <button class="action-btn" onclick="regenerate(${idx})">Regenerate</button>
-      <button class="action-btn" onclick="copyText(\`${(m.content||"").replace(/`/g,"\\`")}\`)">Copy</button>
-    </div>`:"";
-    return `<div class="bubble ${m.role}">${img}<div class="md">${renderMarkdown(m.content)}</div>${actions}</div>`;
-  }).join("");
-  thread.scrollTop=thread.scrollHeight;
-}
-function renderHistory(){
-  $("#historyBar").innerHTML=state.searchHistory.slice(0,8).map(h=>
-    `<button class="history-chip" onclick="runHistory('${escapeHTML(h).replace(/'/g,"\\'")}')">${escapeHTML(h.slice(0,28))}</button>`
+$("#newBtn").onclick = newChat;
+
+function renderChat(){
+  const chat = state.chats.find(c => c.id === state.current);
+  if(!chat){ newChat(); return; }
+  const thread = $("#chatThread");
+  if(chat.messages.length === 0){
+    thread.innerHTML = `<div class="empty">Start chatting with OMNI</div>`;
+    return;
+  }
+  thread.innerHTML = chat.messages.map(m => 
+    `<div class="bubble ${m.role==="user"?"user":"bot"}">${marked.parse(m.content||"")}</div>`
   ).join("");
+  thread.scrollTop = thread.scrollHeight;
 }
-window.runHistory=q=>{$("#query").value=q;doSearch(q)};
-$("#searchForm").addEventListener("submit",e=>{e.preventDefault();doSearch($("#query").value.trim())});
-async function doSearch(query){
-  if(!query)return;
-  if(/^https?:\/\//i.test(query))return summarizeURL(query);
-  state.searchHistory=[query,...state.searchHistory.filter(h=>h!==query)].slice(0,15);
-  saveAll();renderHistory();
-  $("#answerArea").innerHTML=`<div class="card"><div class="label">RESEARCHING</div><div class="typing" style="margin-top:10px"><span></span><span></span><span></span></div></div>`;
-  $("#resultsArea").innerHTML="";
-  try{
-    const deep=$("#deepSearch").checked;
-    const [wiki,openalex]=await Promise.all([
-      fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`).then(r=>r.ok?r.json():null).catch(()=>null),
-      fetch(`https://api.openalex.org/works?search=${encodeURIComponent(query)}&per-page=${deep?8:4}`).then(r=>r.json()).catch(()=>({results:[]}))
-    ]);
-    let sources=[],context="";
-    if(wiki?.extract){sources.push({id:1,title:wiki.title,snippet:wiki.extract.slice(0,280),url:wiki.content_urls?.desktop?.page});context+=`[1] ${wiki.title}: ${wiki.extract}\n\n`;}
-    (openalex.results||[]).forEach(w=>{const id=sources.length+1;sources.push({id,title:w.title||"Paper",snippet:`Cited by ${w.cited_by_count||0}`,url:w.doi?`https://doi.org/${w.doi}`:w.id});context+=`[${id}] ${w.title}\n`;});
-    if(state.groqKey){
-      const answerEl=document.createElement("div");
-      answerEl.className="card";
-      answerEl.innerHTML=`<div class="label">OMNI ANSWER</div><div class="md" id="streamTarget" style="margin-top:8px;line-height:1.6"></div><div class="answer-actions" id="ansActions"></div>`;
-      $("#answerArea").innerHTML="";$("#answerArea").appendChild(answerEl);
-      const prompt=deep?`Do thorough multi-step research on: ${query}\n\nSynthesize the sources carefully, structure the answer clearly, and be precise.` : query;
-      const full=await streamGroq(prompt,context,document.getElementById("streamTarget"));
-      const actions=document.getElementById("ansActions");
-      if(actions){actions.innerHTML=`<button class="action-btn" onclick="copyText(\`${(full||"").replace(/`/g,"\\`")}\`)">Copy</button>`;}
-    }else{$("#answerArea").innerHTML=`<div class="card"><div class="label">TIP</div><div style="margin-top:8px">Add your Groq API key in Profile.</div></div>`;}
-    $("#resultsArea").innerHTML=sources.map(s=>`<div class="card" style="padding:12px"><div style="font-size:11px;color:var(--bg);font-weight:800">[${s.id}]</div><a href="${s.url||'#'}" target="_blank" style="color:var(--ink);font-weight:700;text-decoration:none">${escapeHTML(s.title)}</a><div style="font-size:13px;color:#555;margin-top:4px">${escapeHTML(s.snippet||"")}</div></div>`).join("")||`<div class="empty">No results</div>`;
-  }catch{$("#answerArea").innerHTML=`<div class="card">Search failed</div>`;}
-}
-async function summarizeURL(url){
-  $("#answerArea").innerHTML=`<div class="card"><div class="label">READING</div><div class="typing" style="margin-top:10px"><span></span><span></span><span></span></div></div>`;
-  try{
-    const res=await fetch("https://r.jina.ai/"+url);const text=await res.text();const clipped=text.slice(0,5000);
-    if(state.groqKey){
-      const target=document.createElement("div");target.className="card";
-      target.innerHTML=`<div class="label">SUMMARY</div><div class="md" id="streamTarget" style="margin-top:8px;line-height:1.6"></div>`;
-      $("#answerArea").innerHTML="";$("#answerArea").appendChild(target);
-      await streamGroq("Summarize this page clearly and thoroughly:\n\n"+clipped,"",document.getElementById("streamTarget"));
-    }else{$("#answerArea").innerHTML=`<div class="card"><div class="label">PREVIEW</div><div style="margin-top:8px;font-size:13px">${escapeHTML(clipped.slice(0,700))}…</div></div>`;}
-  }catch{$("#answerArea").innerHTML=`<div class="card">Could not read URL</div>`;}
-}
-async function streamGroq(userContent,context="",targetEl=null){
-  if(!state.groqKey)return null;state.isStreaming=true;let full="";
-  try{
-    const messages=[{role:"system",content:state.systemPrompt},{role:"user",content:context?`Sources:\n${context}\n\nQuestion: ${userContent}`:userContent}];
-    const res=await fetch("https://api.groq.com/openai/v1/chat/completions",{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${state.groqKey}`},body:JSON.stringify({model:state.model,messages,temperature:0.55,max_tokens:2500,stream:true})});
-    if(!res.ok){if(targetEl)targetEl.innerHTML=`<span style="color:#b91c1c">API Error</span>`;return null;}
-    const reader=res.body.getReader();const decoder=new TextDecoder();let buffer="";
-    while(true){const{done,value}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});const lines=buffer.split("\n");buffer=lines.pop()||"";
-      for(const line of lines){if(line.startsWith("data: ")){const data=line.slice(6);if(data==="[DONE]")continue;try{const json=JSON.parse(data);const token=json.choices?.[0]?.delta?.content||"";if(token){full+=token;if(targetEl)targetEl.innerHTML=renderMarkdown(full);}}catch{}}}}
-  }catch{if(targetEl)targetEl.innerHTML="Streaming error";}
-  state.isStreaming=false;return full;
-}
-$("#chatSendBtn").addEventListener("click",sendChat);
-$("#chatInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendChat()}});
+
+$("#chatSend").onclick = sendChat;
+$("#chatInput").addEventListener("keydown", e => {
+  if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); sendChat(); }
+});
+
 async function sendChat(){
-  if(state.isStreaming)return;const text=$("#chatInput").value.trim();if(!text&&!state.pendingImage)return;
-  const chat=state.conversations.find(c=>c.id===state.currentChatId);if(!chat)return;
-  chat.messages.push({role:"user",content:text||"Describe this image",image:state.pendingImage?.dataUrl||null});
-  if(chat.title==="New Chat")chat.title=(text||"Image").slice(0,40);
-  state.pendingImage=null;$("#composerAttach").style.display="none";$("#chatInput").value="";saveAll();loadCurrentChat();
-  const thread=$("#chatThread");const typing=document.createElement("div");typing.className="bubble assistant";typing.id="typingBubble";
-  typing.innerHTML=`<div class="typing"><span></span><span></span><span></span></div>`;thread.appendChild(typing);thread.scrollTop=thread.scrollHeight;
-  if(!state.groqKey){chat.messages.push({role:"assistant",content:"Add your Groq API key in Profile."});saveAll();loadCurrentChat();return;}
-  const target=document.createElement("div");target.className="md";typing.innerHTML="";typing.appendChild(target);
-  const reply=await streamGroq(text||"Describe the attached image in detail.","",target);
-  chat.messages.push({role:"assistant",content:reply||"No response"});saveAll();loadCurrentChat();
+  const text = $("#chatInput").value.trim();
+  if(!text) return;
+  const chat = state.chats.find(c => c.id === state.current);
+  if(!chat) return;
+
+  chat.messages.push({role:"user", content:text});
+  if(chat.title==="New Chat") chat.title = text.slice(0,40);
+  $("#chatInput").value = "";
+  save(); renderChat();
+
+  if(!state.key){
+    chat.messages.push({role:"assistant", content:"Please add your Groq API key in Settings."});
+    save(); renderChat(); return;
+  }
+
+  const reply = await askAI(text);
+  chat.messages.push({role:"assistant", content: reply || "No response"});
+  save(); renderChat();
 }
-window.regenerate=async function(idx){
-  const chat=state.conversations.find(c=>c.id===state.currentChatId);if(!chat||!chat.messages[idx])return;
-  let userMsg="";for(let i=idx-1;i>=0;i--){if(chat.messages[i].role==="user"){userMsg=chat.messages[i].content;break;}}
-  if(!userMsg)return;chat.messages[idx].content="Regenerating…";loadCurrentChat();
-  const newReply=await streamGroq(userMsg,"",null);chat.messages[idx].content=newReply||"Failed";saveAll();loadCurrentChat();
+
+// Camera
+$("#startCam").onclick = async () => {
+  if(!window.isSecureContext) return $("#camStatus").textContent = "Needs HTTPS or localhost";
+  try{
+    state.camStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:state.facing}});
+    $("#camVideo").srcObject = state.camStream;
+    $("#stopCam").hidden = false;
+    $("#camStatus").textContent = "Camera active";
+  }catch{ $("#camStatus").textContent = "Camera permission denied"; }
 };
-$("#micBtn").addEventListener("click",()=>{
-  const Rec=window.SpeechRecognition||window.webkitSpeechRecognition;if(!Rec)return alert("Speech not supported");
-  const r=new Rec();r.lang="en-US";r.onresult=e=>{$("#chatInput").value=e.results[0][0].transcript};r.start();
+$("#stopCam").onclick = stopCam;
+function stopCam(){
+  state.camStream?.getTracks().forEach(t=>t.stop());
+  state.camStream = null;
+  $("#stopCam").hidden = true;
+  $("#camStatus").textContent = "";
+}
+$("#flipCam").onclick = () => {
+  state.facing = state.facing==="user" ? "environment" : "user";
+  if(state.camStream){ stopCam(); setTimeout(()=>$(" #startCam").click(), 300); }
+};
+$$(".fbtn").forEach(b => b.onclick = () => {
+  $$(".fbtn").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  state.filter = b.dataset.f;
+  $("#camVideo").style.filter = state.filter==="none" ? "none" : state.filter;
 });
-$("#imgGenBtn").addEventListener("click",()=>{
-  const prompt=prompt("Image prompt:");if(!prompt)return;
-  const url=`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=768&height=768&nologo=true`;
-  const chat=state.conversations.find(c=>c.id===state.currentChatId);if(!chat)return;
-  chat.messages.push({role:"user",content:`Generate: ${prompt}`});
-  chat.messages.push({role:"assistant",content:`![Generated Image](${url})`,image:url});
-  saveAll();loadCurrentChat();
-});
-$("#navCamera").addEventListener("click",async()=>{
-  if(!window.isSecureContext)return alert("Needs HTTPS or localhost");
-  $("#cameraDialog").showModal();
-  try{state.cameraStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:state.facingMode}});$("#cameraVideo").srcObject=state.cameraStream;}catch{alert("Camera denied");$("#cameraDialog").close()}
-});
-function applyFilter(f){state.currentFilter=f;$("#cameraVideo").style.filter=f==="none"?"none":f}
-$$(".filter-btn").forEach(btn=>btn.addEventListener("click",()=>{$$(".filter-btn").forEach(b=>b.classList.remove("active"));btn.classList.add("active");applyFilter(btn.dataset.filter)}));
-$("#camFlip").addEventListener("click",()=>{state.facingMode=state.facingMode==="environment"?"user":"environment";state.cameraStream?.getTracks().forEach(t=>t.stop());$("#navCamera").click()});
-$("#camCancel").addEventListener("click",()=>{state.cameraStream?.getTracks().forEach(t=>t.stop());$("#cameraDialog").close()});
-$("#camCapture").addEventListener("click",()=>{
-  const video=$("#cameraVideo");const canvas=document.createElement("canvas");canvas.width=video.videoWidth||640;canvas.height=video.videoHeight||480;
-  const ctx=canvas.getContext("2d");ctx.filter=state.currentFilter==="none"?"none":state.currentFilter;ctx.drawImage(video,0,0);
-  const dataUrl=canvas.toDataURL("image/jpeg",0.88);state.saved.unshift({url:dataUrl,title:"Photo "+new Date().toLocaleTimeString(),date:Date.now()});
-  state.pendingImage={dataUrl};saveAll();state.cameraStream?.getTracks().forEach(t=>t.stop());$("#cameraDialog").close();setView("chat");
-  $("#composerAttach").style.display="block";$("#composerAttach").innerHTML=`<img src="${dataUrl}" style="width:40px;height:40px;border-radius:6px"> Photo attached`;
-});
-function renderSaved(){const grid=$("#savedGrid"),empty=$("#savedEmpty");if(!state.saved.length){grid.innerHTML="";empty.hidden=false;return}empty.hidden=true;
-  grid.innerHTML=state.saved.map((s,i)=>`<div class="saved-item"><img src="${s.url}"><button class="del" onclick="deleteSaved(${i})">×</button><div class="info">${escapeHTML(s.title)}</div></div>`).join("")}
-window.deleteSaved=i=>{state.saved.splice(i,1);saveAll();renderSaved()};
-$("#groqKey").value=state.groqKey;$("#systemPrompt").value=state.systemPrompt;$("#modelSelect").value=state.model;if(state.groqKey)$("#rememberKey").checked=true;
-$("#saveKeyBtn").addEventListener("click",()=>{state.groqKey=$("#groqKey").value.trim();if($("#rememberKey").checked)localStorage.setItem("omni_groq_key",state.groqKey);else localStorage.removeItem("omni_groq_key");alert("Key saved")});
-$("#modelSelect").addEventListener("change",()=>{state.model=$("#modelSelect").value;saveAll()});
-$("#savePromptBtn").addEventListener("click",()=>{state.systemPrompt=$("#systemPrompt").value.trim()||DEFAULT_PROMPT;localStorage.setItem("omni_system_prompt",state.systemPrompt);alert("Prompt saved")});
-$("#exportChatBtn").addEventListener("click",()=>{const chat=state.conversations.find(c=>c.id===state.currentChatId);if(!chat)return;const text=chat.messages.map(m=>`${m.role.toUpperCase()}:\n${m.content}`).join("\n\n---\n\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"text/plain"}));a.download="omni-chat.txt";a.click()});
-$("#clearDataBtn").addEventListener("click",()=>{if(confirm("Clear everything?")){localStorage.clear();location.reload()}});
-function copyText(t){navigator.clipboard.writeText(t)}
-if(!state.conversations.length)newChat();else if(!state.currentChatId)state.currentChatId=state.conversations[0].id;
-setView("search");renderHistory();
+$("#captureCam").onclick = () => {
+  const v = $("#camVideo");
+  const c = document.createElement("canvas");
+  c.width = v.videoWidth||640; c.height = v.videoHeight||480;
+  const ctx = c.getContext("2d");
+  ctx.filter = state.filter==="none"?"none":state.filter;
+  ctx.drawImage(v,0,0);
+  const url = c.toDataURL("image/jpeg",0.9);
+  state.images.unshift({url, title:"Capture "+new Date().toLocaleTimeString()});
+  save();
+  const a = document.createElement("a");
+  a.href = url; a.download = "omni-capture.jpg"; a.click();
+};
+
+// Creative
+$("#genImg").onclick = () => {
+  const p = $("#imgPrompt").value.trim();
+  if(!p) return;
+  const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(p)}?width=768&height=768&nologo=true`;
+  state.images.unshift({url, title:p.slice(0,30)});
+  save();
+  renderImages();
+};
+function renderImages(){
+  $("#imgGrid").innerHTML = state.images.map(img => `
+    <div class="item">
+      <img src="${img.url}" alt="">
+      <div class="info">${img.title}</div>
+      <button class="action" style="margin:6px;width:calc(100% - 12px)" onclick="downloadImg('${img.url}')">Download</button>
+    </div>`).join("") || `<div class="empty">No images yet</div>`;
+}
+window.downloadImg = (url) => {
+  const a = document.createElement("a");
+  a.href = url; a.download = "omni-image.jpg"; a.target = "_blank"; a.click();
+};
+
+// Settings
+$("#apiKey").value = state.key;
+$("#sysPrompt").value = state.prompt;
+$("#saveKey").onclick = () => {
+  state.key = $("#apiKey").value.trim();
+  save();
+  alert("Key saved");
+};
+$("#savePrompt").onclick = () => {
+  state.prompt = $("#sysPrompt").value.trim() || state.prompt;
+  save();
+  alert("Saved");
+};
+$("#clearAll").onclick = () => {
+  if(confirm("Clear everything?")){ localStorage.clear(); location.reload(); }
+};
+
+// Init
+if(state.chats.length === 0) newChat();
+else state.current = state.chats[0].id;
+setView("home");
 </script>
 </body>
 </html>
